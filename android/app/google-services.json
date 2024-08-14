@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "518839440232",
+    "project_id": "caregiver-fb48d",
+    "storage_bucket": "caregiver-fb48d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:518839440232:android:55714c13f83be5a9aabcdd",
+        "android_client_info": {
+          "package_name": "com.example.caregiver"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCJ_g2UrZoeRiC1Xb6QPykbyuD-q-tZBZc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
