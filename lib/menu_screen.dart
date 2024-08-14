@@ -1,116 +1,87 @@
+import 'package:caregiver/main_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:caregiver/my_drawer_controller.dart';
 
-class MenuScreen extends StatelessWidget {
+class MenuScreen extends GetView<MyDrawerController> {
+  const MenuScreen({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Color(0xFFb71c1c),
-              Color(0xFF880e4f)
-            ], // Red-to-dark gradient
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+    return Material(
+      // Add Material widget here
+      child: Container(
+        color: Colors.yellow, // Background color of the menu
         child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                CircleAvatar(
-                  radius: 40,
-                  backgroundImage: AssetImage(
-                      'assets/images/profile.jpg'), // Replace with your profile image
-                ),
-                SizedBox(height: 20),
-                Text(
-                  "Welcome",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                SizedBox(height: 40),
-                ListTile(
-                  leading: Icon(Icons.home, color: Colors.white),
-                  title: Text(
-                    "Home",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                  onTap: () {
-                    // Handle Home tap
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.bloodtype, color: Colors.white),
-                  title: Text(
-                    "Request Blood",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                  onTap: () {
-                    // Handle Request Blood tap
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.event, color: Colors.white),
-                  title: Text(
-                    "Post a Event",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                  onTap: () {
-                    // Handle Post a Event tap
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.help, color: Colors.white),
-                  title: Text(
-                    "Help",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                  onTap: () {
-                    // Handle Help tap
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.settings, color: Colors.white),
-                  title: Text(
-                    "Settings",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                  onTap: () {
-                    // Handle Settings tap
-                  },
-                ),
-                Spacer(),
-                Center(
-                  child: OutlinedButton(
-                    onPressed: () {
-                      // Handle logout
-                    },
-                    style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: Colors.white),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              DrawerHeader(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    CircleAvatar(
+                      radius: 30.0,
+                      backgroundImage: AssetImage(
+                          'assets/profile_picture.png'), // Replace with your asset
+                    ),
+                    SizedBox(height: 10.0),
+                    Text(
+                      'User Name', // Replace with the actual user name
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
                       ),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 40, vertical: 10),
                     ),
-                    child: Text(
-                      "logout",
-                      style: TextStyle(color: Colors.white, fontSize: 18),
+                    Text(
+                      'user@example.com', // Replace with the actual email
+                      style: TextStyle(
+                        color: Colors.black54,
+                        fontSize: 14.0,
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+              Divider(color: Colors.black54),
+              _buildMenuItem(Icons.home, 'Home', () {
+                controller.toggleDrawer();
+                Get.to(() => MainScreen());
+              }),
+              _buildMenuItem(Icons.bloodtype, 'Request Blood', () {
+                controller.toggleDrawer();
+                // Implement navigation here
+              }),
+              _buildMenuItem(Icons.event, 'Post an Event', () {
+                controller.toggleDrawer();
+                // Implement navigation here
+              }),
+              _buildMenuItem(Icons.help, 'Help', () {
+                controller.toggleDrawer();
+                // Implement navigation here
+              }),
+              _buildMenuItem(Icons.settings, 'Settings', () {
+                controller.toggleDrawer();
+                // Implement navigation here
+              }),
+              Spacer(),
+              _buildMenuItem(Icons.logout, 'Logout', () {
+                controller.toggleDrawer();
+                // Implement logout here
+              }),
+            ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildMenuItem(IconData icon, String title, VoidCallback onTap) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.black),
+      title: Text(title, style: TextStyle(color: Colors.black)),
+      onTap: onTap,
     );
   }
 }
