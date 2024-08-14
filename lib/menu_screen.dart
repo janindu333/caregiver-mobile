@@ -4,13 +4,14 @@ class MenuScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent, // Transparent to see gradient
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
               Color(0xFFb71c1c),
-              Color(0xFF880e4f)
-            ], // Red-to-dark gradient
+              Color(0xFF880e4f),
+            ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -23,8 +24,7 @@ class MenuScreen extends StatelessWidget {
               children: <Widget>[
                 CircleAvatar(
                   radius: 40,
-                  backgroundImage: AssetImage(
-                      'assets/images/profile.jpg'), // Replace with your profile image
+                  backgroundImage: AssetImage('assets/images/profile.jpg'),
                 ),
                 SizedBox(height: 20),
                 Text(
@@ -46,46 +46,7 @@ class MenuScreen extends StatelessWidget {
                     // Handle Home tap
                   },
                 ),
-                ListTile(
-                  leading: Icon(Icons.bloodtype, color: Colors.white),
-                  title: Text(
-                    "Request Blood",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                  onTap: () {
-                    // Handle Request Blood tap
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.event, color: Colors.white),
-                  title: Text(
-                    "Post a Event",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                  onTap: () {
-                    // Handle Post a Event tap
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.help, color: Colors.white),
-                  title: Text(
-                    "Help",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                  onTap: () {
-                    // Handle Help tap
-                  },
-                ),
-                ListTile(
-                  leading: Icon(Icons.settings, color: Colors.white),
-                  title: Text(
-                    "Settings",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
-                  ),
-                  onTap: () {
-                    // Handle Settings tap
-                  },
-                ),
+                // Other ListTiles go here
                 Spacer(),
                 Center(
                   child: OutlinedButton(
