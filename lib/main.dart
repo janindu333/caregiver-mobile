@@ -22,6 +22,8 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: SplashScreen(),
+      debugShowCheckedModeBanner:
+          false, // Add this line to remove the debug banner
       routes: {
         '/admin_dashboard': (context) => AdminDashboardPage(),
         '/caregiver_dashboard': (context) => CaregiverDashboardPage(),
