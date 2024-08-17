@@ -11,7 +11,8 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   String? _selectedRole;
   bool _isLoading = false;
   String? _errorMessage;
@@ -21,19 +22,20 @@ class _SignupPageState extends State<SignupPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF1E1E2E), Color(0xFF8E44AD)],
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-              ),
+ @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: Stack(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xFF1E1E2E), Color(0xFF8E44AD)],
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
             ),
+          ),
+          child: SingleChildScrollView(  // <-- Added here
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 50.0),
               child: Column(
@@ -46,7 +48,7 @@ class _SignupPageState extends State<SignupPage> {
                       Navigator.pop(context);
                     },
                   ),
-                  Spacer(),
+                  SizedBox(height: 20),  // Adjust the space here
                   Center(
                     child: Text(
                       'Create Account',
@@ -137,7 +139,9 @@ class _SignupPageState extends State<SignupPage> {
                       prefixIcon: Icon(Icons.lock, color: Colors.white),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                          _isPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                           color: Colors.white,
                         ),
                         onPressed: _togglePasswordVisibility,
@@ -161,7 +165,9 @@ class _SignupPageState extends State<SignupPage> {
                       prefixIcon: Icon(Icons.lock, color: Colors.white),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _isConfirmPasswordVisible ? Icons.visibility : Icons.visibility_off,
+                          _isConfirmPasswordVisible
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                           color: Colors.white,
                         ),
                         onPressed: _toggleConfirmPasswordVisibility,
@@ -199,15 +205,17 @@ class _SignupPageState extends State<SignupPage> {
                     ),
                   ),
                   SizedBox(height: 20),
-                  Spacer(),
                 ],
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
+
 
   void _togglePasswordVisibility() {
     setState(() {
@@ -242,7 +250,8 @@ class _SignupPageState extends State<SignupPage> {
     });
 
     try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+      UserCredential userCredential =
+          await _auth.createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _passwordController.text.trim(),
       );
@@ -250,7 +259,11 @@ class _SignupPageState extends State<SignupPage> {
       User? user = userCredential.user;
 
       if (user != null) {
-        await _firestore.collection('users').doc(user.uid).set({
+        DocumentReference docRef = _firestore.collection('users').doc(user.uid);
+
+        // Use the Firestore-generated ID as the 'id' field in the document
+        await docRef.set({
+          'id': docRef.id, // Firestore-generated unique ID
           'name': _nameController.text.trim(),
           'email': _emailController.text.trim(),
           'role': _selectedRole,

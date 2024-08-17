@@ -1,12 +1,16 @@
 import 'dart:io';
-import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
+
 import 'package:caregiver/features/auth/data/data_sources/auth_service.dart';
 import 'package:caregiver/features/auth/presentation/pages/login_page.dart';
-import 'package:caregiver/features/caregiver/presentation/pages/caregiver_dashboard_page.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 class MenuScreen extends StatelessWidget {
   final AuthService _authService = AuthService();
+
+  final Function(String) onMenuItemSelected;
+
+  MenuScreen({required this.onMenuItemSelected});
 
   final widthBox = SizedBox(
     width: 16.0,
@@ -25,7 +29,7 @@ class MenuScreen extends StatelessWidget {
             : iosStyle;
 
     return Scaffold(
-      backgroundColor: Colors.transparent, // Transparent to see gradient
+      backgroundColor: Colors.transparent,
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -39,11 +43,9 @@ class MenuScreen extends StatelessWidget {
         ),
         child: SafeArea(
           child: SingleChildScrollView(
-            // Wrapping the Column with SingleChildScrollView
             child: Padding(
               padding: const EdgeInsets.symmetric(
-                  vertical: 20.0,
-                  horizontal: 10.0), // Reduced horizontal padding
+                  vertical: 20.0, horizontal: 10.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -61,120 +63,66 @@ class MenuScreen extends StatelessWidget {
 
                   // Dashboard
                   ListTile(
-                    contentPadding: EdgeInsets.only(
-                        left: 0.0), // Move the text more to the left
+                    contentPadding: EdgeInsets.only(left: 0.0),
                     leading: Icon(Icons.dashboard, color: Colors.white),
                     title: Text(
                       "Dashboard",
                       style: style,
                     ),
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => CaregiverDashboardPage()),
-                      );
+                      onMenuItemSelected('Dashboard');
                     },
                   ),
 
                   // Real-Time Monitoring
                   ListTile(
-                    contentPadding: EdgeInsets.only(
-                        left: 0.0), // Move the text more to the left
+                    contentPadding: EdgeInsets.only(left: 0.0),
                     leading: Icon(Icons.timeline, color: Colors.white),
                     title: Text(
                       "Real-Time Monitoring",
                       style: style,
                     ),
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => CaregiverDashboardPage()),
-                      );
+                      onMenuItemSelected('Real-Time Monitoring');
                     },
                   ),
 
                   // Activity Log
                   ListTile(
-                    contentPadding: EdgeInsets.only(
-                        left: 0.0), // Move the text more to the left
+                    contentPadding: EdgeInsets.only(left: 0.0),
                     leading: Icon(Icons.history, color: Colors.white),
                     title: Text(
                       "Activity Log",
                       style: style,
                     ),
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => CaregiverDashboardPage()),
-                      );
+                      onMenuItemSelected('Activity Log');
                     },
                   ),
 
                   // User Management
-                  ExpansionTile(
+                  ListTile(
+                    contentPadding: EdgeInsets.only(left: 0.0),
                     leading: Icon(Icons.people, color: Colors.white),
                     title: Text(
                       "User Management",
                       style: style,
                     ),
-                    children: <Widget>[
-                      ListTile(
-                        title: Text(
-                          "View Users",
-                          style: style,
-                        ),
-                        onTap: () {
-                          // Navigate to View Users Page
-                        },
-                      ),
-                      ListTile(
-                        title: Text(
-                          "Add New User",
-                          style: style,
-                        ),
-                        onTap: () {
-                          // Navigate to Add New User Page
-                        },
-                      ),
-                      ListTile(
-                        title: Text(
-                          "Edit User",
-                          style: style,
-                        ),
-                        onTap: () {
-                          // Navigate to Edit User Page
-                        },
-                      ),
-                      ListTile(
-                        title: Text(
-                          "Remove User",
-                          style: style,
-                        ),
-                        onTap: () {
-                          // Navigate to Remove User Page
-                        },
-                      ),
-                    ],
+                    onTap: () {
+                      onMenuItemSelected('User Management');
+                    },
                   ),
 
                   // Profile Management
                   ListTile(
-                    contentPadding: EdgeInsets.only(
-                        left: 0.0), // Move the text more to the left
+                    contentPadding: EdgeInsets.only(left: 0.0),
                     leading: Icon(Icons.person, color: Colors.white),
                     title: Text(
                       "Profile Management",
                       style: style,
                     ),
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => CaregiverDashboardPage()),
-                      );
+                      onMenuItemSelected('Profile Management');
                     },
                   ),
 
@@ -192,7 +140,7 @@ class MenuScreen extends StatelessWidget {
                           style: style,
                         ),
                         onTap: () {
-                          // Navigate to Documentation Page
+                          onMenuItemSelected('Documentation');
                         },
                       ),
                       ListTile(
@@ -201,7 +149,7 @@ class MenuScreen extends StatelessWidget {
                           style: style,
                         ),
                         onTap: () {
-                          // Navigate to Support Contact Page
+                          onMenuItemSelected('Support Contact');
                         },
                       ),
                       ListTile(
@@ -210,7 +158,7 @@ class MenuScreen extends StatelessWidget {
                           style: style,
                         ),
                         onTap: () {
-                          // Navigate to Feedback Page
+                          onMenuItemSelected('Feedback');
                         },
                       ),
                     ],
@@ -218,31 +166,29 @@ class MenuScreen extends StatelessWidget {
 
                   // Emergency Contact
                   ListTile(
-                    contentPadding: EdgeInsets.only(
-                        left: 0.0), // Move the text more to the left
+                    contentPadding: EdgeInsets.only(left: 0.0),
                     leading: Icon(Icons.phone_in_talk, color: Colors.white),
                     title: Text(
                       "Emergency Contact",
                       style: style,
                     ),
                     onTap: () {
-                      // Navigate to Emergency Contact Page
+                      onMenuItemSelected('Emergency Contact');
                     },
                   ),
 
                   SizedBox(
-                      height:
-                          40), // Adds some space between the menu items and the logout button
+                      height: 40),
 
                   // Logout Button
                   Center(
                     child: OutlinedButton(
                       onPressed: () async {
-                        await _authService.signOut(); // Perform logout
+                        await _authService.signOut();
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(builder: (context) => LoginPage()),
-                        ); // Navigate to LoginPage after logout
+                        );
                       },
                       style: OutlinedButton.styleFrom(
                         side: BorderSide(color: Colors.white, width: 2.0),
@@ -251,8 +197,7 @@ class MenuScreen extends StatelessWidget {
                         ),
                         padding:
                             EdgeInsets.symmetric(horizontal: 40, vertical: 10),
-                        backgroundColor:
-                            Colors.transparent, // Transparent background
+                        backgroundColor: Colors.transparent,
                       ),
                       child: Text(
                         "Logout",
