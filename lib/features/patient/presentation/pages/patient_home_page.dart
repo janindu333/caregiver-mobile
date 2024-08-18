@@ -1,20 +1,19 @@
 import 'package:caregiver/features/auth/data/data_sources/auth_service.dart';
 import 'package:caregiver/features/auth/presentation/pages/login_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth 
 
 class PatientHomePage extends StatelessWidget {
   final AuthService _authService = AuthService(); // Initialize AuthService
 
-  // Removed the 'const' keyword
   PatientHomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: null,  // Remove the back button by setting leading to null
+        leading: null, // Remove the back button by setting leading to null
         title: Text('Patient needs'),
         centerTitle: true,
         actions: [
@@ -155,26 +154,51 @@ class PatientHomePage extends StatelessWidget {
     );
   }
 
-  Future<void> _handleNeedSelection(BuildContext context, String needType) async {
+  Future<void> _handleNeedSelection(
+      BuildContext context, String needType) async {
     try {
-      // Create a notification record in Firestore
-      await FirebaseFirestore.instance.collection('notifications').add({
-        'caregiverId': 'KhVyGEWErOVFe0uU4gehsdf6qVD3', // Replace with actual caregiver ID
-        'patientId': 'patient2', // Replace with actual patient ID
-        'title': 'Patient needs help',
-        'body': 'The patient has requested $needType.',
-        'timestamp': FieldValue.serverTimestamp(),
-      });
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final patientId = user.uid;
 
-      // Show confirmation message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Request for $needType sent successfully.')),
-      );
+        // Query the patients collection to find the document with matching patient ID
+        final patientQuerySnapshot = await FirebaseFirestore.instance
+            .collection('patients')
+            .where('id', isEqualTo: patientId)
+            .limit(1)
+            .get();
 
-      // Optionally, trigger Firebase Cloud Messaging to send a push notification
-      // Note: Firebase Cloud Messaging setup is required to use this feature.
-      // await _sendPushNotification(needType);
+        if (patientQuerySnapshot.docs.isNotEmpty) {
+          final patientDoc = patientQuerySnapshot.docs.first;
+          final caregiverId = patientDoc.data()['caregiverId'];
 
+          // Create a notification record in Firestore
+          await FirebaseFirestore.instance.collection('notifications').add({
+            'caregiverId': caregiverId, // Use the retrieved caregiver ID
+            'patientId': patientId, // Use the logged-in user's ID
+            'title': 'Patient needs help',
+            'body': 'The patient has requested $needType.',
+            'timestamp': FieldValue.serverTimestamp(),
+          });
+
+          // Show confirmation message
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Request for $needType sent successfully.')),
+          );
+
+          // Optionally, trigger Firebase Cloud Messaging to send a push notification
+          // Note: Firebase Cloud Messaging setup is required to use this feature.
+          // await _sendPushNotification(needType);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to find caregiver information.')),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('User is not logged in.')),
+        );
+      }
     } catch (e) {
       // Handle any errors here
       ScaffoldMessenger.of(context).showSnackBar(
