@@ -13,13 +13,9 @@ class UserManagementPage extends StatefulWidget {
 
 class _UserManagementPageState extends State<UserManagementPage> {
   TextEditingController _searchController = TextEditingController();
-  TextEditingController _conditionController =
-      TextEditingController(); // Add a controller for the condition field
+  TextEditingController _conditionController = TextEditingController();
   List<DocumentSnapshot> _allPatientsByCareGiverId = [];
   List<DocumentSnapshot> _filteredPatientsByCareGiverId = [];
-
-  List<DocumentSnapshot> _allPatients = [];
-  List<DocumentSnapshot> _filteredPatients = [];
   String? _selectedPatientId;
 
   @override
@@ -30,11 +26,9 @@ class _UserManagementPageState extends State<UserManagementPage> {
 
   void _fetchPatientsByCareGiverId() async {
     User? currentUser = FirebaseAuth.instance.currentUser;
-    CollectionReference patients =
-        FirebaseFirestore.instance.collection('patients');
+    CollectionReference patients = FirebaseFirestore.instance.collection('patients');
 
-    QuerySnapshot querySnapshot =
-        await patients.where('caregiverId', isEqualTo: currentUser?.uid).get();
+    QuerySnapshot querySnapshot = await patients.where('caregiverId', isEqualTo: currentUser?.uid).get();
 
     setState(() {
       _allPatientsByCareGiverId = querySnapshot.docs;
@@ -42,27 +36,14 @@ class _UserManagementPageState extends State<UserManagementPage> {
     });
   }
 
-  void _fetchPatients() async {
-    CollectionReference users = FirebaseFirestore.instance.collection('users');
-
-    // Fetch all users where the role is "patient"
-    QuerySnapshot querySnapshot =
-        await users.where('role', isEqualTo: 'patient').get();
-
-    setState(() {
-      _allPatients = querySnapshot.docs;
-      _filteredPatients = querySnapshot.docs;
-    });
-  }
-
   void _filterPatients(String query) {
     if (query.isEmpty) {
       setState(() {
-        _filteredPatients = _allPatients;
+        _filteredPatientsByCareGiverId = _allPatientsByCareGiverId;
       });
     } else {
       setState(() {
-        _filteredPatients = _allPatients.where((patient) {
+        _filteredPatientsByCareGiverId = _allPatientsByCareGiverId.where((patient) {
           String name = (patient.data() as Map<String, dynamic>)['name'];
           return name.toLowerCase().contains(query.toLowerCase());
         }).toList();
@@ -70,38 +51,33 @@ class _UserManagementPageState extends State<UserManagementPage> {
     }
   }
 
-  void _addNewPatient(String patientId, String patientName, String condition,
-      VoidCallback onSuccess) async {
+  void _addNewPatient(String patientId, String patientName, String condition, VoidCallback onSuccess) async {
     User? currentUser = FirebaseAuth.instance.currentUser;
-    CollectionReference patients =
-        FirebaseFirestore.instance.collection('patients');
+    CollectionReference patients = FirebaseFirestore.instance.collection('patients');
 
     await patients.add({
       'name': patientName,
       'caregiverId': currentUser?.uid,
-      'lastActivity': DateTime.now().toString(), // Example field
-      'id': patientId, // Use the selected patient's ID
-      'condition': condition, // Assign the condition here
+      'lastActivity': DateTime.now().toString(),
+      'id': patientId,
+      'condition': condition,
     }).then((value) {
-      // Call the onSuccess callback after successfully adding the patient
       onSuccess();
     }).catchError((error) {
-      // Handle errors if needed
       print("Failed to add patient: $error");
     });
 
-    _fetchPatientsByCareGiverId(); // Refresh the list of patients after adding a new one
+    _fetchPatientsByCareGiverId();
   }
 
   void _deletePatient(String patientId) async {
-    CollectionReference patients =
-        FirebaseFirestore.instance.collection('patients');
+    CollectionReference patients = FirebaseFirestore.instance.collection('patients');
 
     await patients.doc(patientId).delete().then((_) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Patient deleted successfully')),
       );
-      _fetchPatientsByCareGiverId(); // Refresh the list after deletion
+      _fetchPatientsByCareGiverId();
     }).catchError((error) {
       print("Failed to delete patient: $error");
       ScaffoldMessenger.of(context).showSnackBar(
@@ -120,14 +96,14 @@ class _UserManagementPageState extends State<UserManagementPage> {
           actions: [
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog on Cancel
+                Navigator.of(context).pop();
               },
               child: Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () {
-                _deletePatient(patientId); // Delete the patient
-                Navigator.of(context).pop(); // Close the dialog after deletion
+                _deletePatient(patientId);
+                Navigator.of(context).pop();
               },
               child: Text('Confirm'),
             ),
@@ -138,104 +114,29 @@ class _UserManagementPageState extends State<UserManagementPage> {
   }
 
   void _showAddPatientDialog() {
-    _fetchPatients(); // Fetch all patients when the dialog is opened
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text('Add New Patient'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              DropdownButtonFormField<String>(
-                value: _selectedPatientId,
-                items: _filteredPatients.map((patient) {
-                  var patientData = patient.data() as Map<String, dynamic>;
-                  return DropdownMenuItem<String>(
-                    value: patient.id,
-                    child: Text(patientData['name']),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    _selectedPatientId = value;
-                  });
-                },
-                decoration: InputDecoration(
-                  labelText: 'Select Patient',
-                ),
-              ),
-              SizedBox(height: 16),
-              TextField(
-                controller:
-                    _conditionController, // Use the controller for condition input
-                decoration: InputDecoration(
-                  labelText: 'Condition',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog on Cancel
-              },
-              child: Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                if (_selectedPatientId != null) {
-                  var selectedPatient = _filteredPatients.firstWhere(
-                      (patient) => patient.id == _selectedPatientId);
-                  var patientData =
-                      selectedPatient.data() as Map<String, dynamic>;
-                  _addNewPatient(
-                    _selectedPatientId!,
-                    patientData['name'],
-                    _conditionController
-                        .text, // Pass the condition to _addNewPatient
-                    () {
-                      // Callback function after success
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Patient added successfully')),
-                      );
-                    },
-                  );
-                  Navigator.of(context).pop(); // Close the dialog after saving
-                }
-              },
-              child: Text('Save'),
-            ),
-          ],
-        );
-      },
-    );
+    // Implement logic to show add patient dialog
   }
 
-@override
-Widget build(BuildContext context) {
-  
-  return Scaffold(
-    appBar: AppBar(
-      backgroundColor: Colors.red,
-      elevation: 0,
-      title: const Text('User Management'),
-      leading: IconButton(
-        icon: Icon(Icons.menu),
-        onPressed: widget.onMenuPressed,
-      ),
-      actions: [
-        IconButton(
-          icon: Icon(Icons.add),
-          onPressed: _showAddPatientDialog, // Show the add patient form
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Text(
+          'Patient List',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
         ),
-      ],
-    ),
-    body: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: SingleChildScrollView( // Make the content scrollable
+        leading: IconButton(
+          icon: Icon(Icons.menu, color: Colors.black),
+          onPressed: widget.onMenuPressed,
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -243,60 +144,107 @@ Widget build(BuildContext context) {
             TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                labelText: 'Search Patients',
-                border: OutlineInputBorder(),
+                hintText: 'Search for a patient',
+                prefixIcon: Icon(Icons.search, color: Colors.grey),
+                filled: true,
+                fillColor: Colors.grey[200],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
               ),
               onChanged: (value) {
                 _filterPatients(value);
               },
             ),
             SizedBox(height: 20),
-
-            // List of patients
-            _filteredPatientsByCareGiverId.isEmpty
-                ? Center(child: Text('No patients found'))
-                : ListView.builder(
-                    shrinkWrap: true, // Shrink the ListView to fit the content
-                    physics: NeverScrollableScrollPhysics(), // Disable ListView's scrolling
-                    itemCount: _filteredPatientsByCareGiverId.length,
-                    itemBuilder: (context, index) {
-                      var patientData = _filteredPatientsByCareGiverId[index]
-                          .data() as Map<String, dynamic>;
-                      String patientName = patientData['name'];
-                      String patientId =
-                          _filteredPatientsByCareGiverId[index].id;
-
-                      return Card(
-                        child: ListTile(
-                          title: Text(patientName),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: Icon(Icons.edit),
-                                onPressed: () {
-                                  // Navigate to Edit Patient Page
-                                },
-                              ),
-                              IconButton(
-                                icon: Icon(Icons.delete),
-                                onPressed: () {
-                                  _showDeleteConfirmationDialog(patientId);
-                                },
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
+            // Assign Patient Button
+            Center(
+              child: ElevatedButton(
+                onPressed: _showAddPatientDialog,
+                style: ElevatedButton.styleFrom(
+                  padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                  backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
                   ),
+                ),
+                child: Text(
+                  'Assign Patient',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+            SizedBox(height: 20),
+            // List of patients
+            Expanded(
+              child: _filteredPatientsByCareGiverId.isEmpty
+                  ? Center(child: Text('No patients found'))
+                  : ListView.builder(
+                      itemCount: _filteredPatientsByCareGiverId.length,
+                      itemBuilder: (context, index) {
+                        var patientData = _filteredPatientsByCareGiverId[index].data() as Map<String, dynamic>;
+                        String patientName = patientData['name'];
+                        String patientCondition = patientData['condition'] ?? '';
+                        String patientId = _filteredPatientsByCareGiverId[index].id;
+
+                        return Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          margin: EdgeInsets.symmetric(vertical: 10),
+                          child: ListTile(
+                            contentPadding: EdgeInsets.all(10),
+                            title: Text(
+                              patientName,
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                            subtitle: Text('Condition: $patientCondition, Status: Good'), // Update the status field accordingly
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TextButton(
+                                  onPressed: () {
+                                    // Handle view details action
+                                  },
+                                  style: TextButton.styleFrom(
+                                    backgroundColor: Colors.grey[200],
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: Text('View details'),
+                                ),
+                                SizedBox(width: 8),
+                                IconButton(
+                                  icon: Icon(Icons.edit),
+                                  onPressed: () {
+                                    // Navigate to Edit Patient Page
+                                  },
+                                ),
+                                IconButton(
+                                  icon: Icon(Icons.delete),
+                                  onPressed: () {
+                                    _showDeleteConfirmationDialog(patientId);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
           ],
         ),
       ),
-    ),
-  );
-}
-
-
-
+    );
+  }
 }

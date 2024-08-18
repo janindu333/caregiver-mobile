@@ -95,9 +95,9 @@ class MenuScreen extends StatelessWidget {
                       "Profile Management",
                       style: style,
                     ),
-                    onTap: () {
-                      onMenuItemSelected('Profile Management');
-                    },
+                    // onTap: () {
+                    //   onMenuItemSelected('Profile Management');
+                    // },
                   ),  
               
                   // Logout Button
