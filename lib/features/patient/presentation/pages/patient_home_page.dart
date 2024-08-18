@@ -3,6 +3,9 @@ import 'package:caregiver/features/auth/presentation/pages/login_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+ import 'package:http/http.dart' as http;
+import 'dart:convert';
+
 
 class PatientHomePage extends StatelessWidget {
   final AuthService _authService = AuthService(); // Initialize AuthService
@@ -211,26 +214,41 @@ Future<void> _sendPushNotification(String caregiverId, String needType) async {
     if (tokenSnapshot.exists) {
       final fcmToken = tokenSnapshot.data()?['fcmToken'];
 
-      // Assuming you have a Cloud Function to send FCM messages
-      // Call your Cloud Function here to send the notification
-      final data = {
-        'to': fcmToken,
-        'notification': {
-          'title': 'Patient Needs Help',
-          'body': 'The patient has requested $needType.',
-        },
-        'data': {
-          'click_action': 'FLUTTER_NOTIFICATION_CLICK',
-          'need_type': needType,
-        },
-      };
+      if (fcmToken != null) {
+        // Construct the notification payload
+        final data = {
+          'to': fcmToken,
+          'notification': {
+            'title': 'Patient Needs Help',
+            'body': 'The patient has requested $needType.',
+          },
+          'data': {
+            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+            'need_type': needType,
+          },
+        };
 
-      // Send the request using your preferred HTTP client
-      // For example, you could use `http.post()` to send a request to your Cloud Function
+        // Send the notification using HTTP POST to FCM endpoint
+        final response = await http.post(
+          Uri.parse('https://fcm.googleapis.com/fcm/send'),
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'key=AIzaSyCJ_g2UrZoeRiC1Xb6QPykbyuD-q-tZBZc',  // Replace with your FCM server key
+          },
+          body: jsonEncode(data),
+        );
 
-      print('Notification sent successfully');
+        if (response.statusCode == 200) {
+          print('Notification sent successfully');
+        } else {
+          print('Failed to send notification: ${response.statusCode}');
+          print('Response body: ${response.body}');
+        }
+      } else {
+        print('No FCM token found for caregiver');
+      }
     } else {
-      print('No FCM token found for caregiver');
+      print('No such document exists!');
     }
   } catch (e) {
     print('Failed to send push notification: $e');
