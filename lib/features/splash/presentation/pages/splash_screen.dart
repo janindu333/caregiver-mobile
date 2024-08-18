@@ -51,7 +51,7 @@ class _SplashScreenState extends State<SplashScreen> {
         Navigator.pushReplacement(
             // ignore: use_build_context_synchronously
             context,
-            MaterialPageRoute(builder: (context) => const PatientHomePage()));
+            MaterialPageRoute(builder: (context) =>   PatientHomePage()));
       } else if (role == 'caregiver') {
         Navigator.pushReplacement(
             // ignore: use_build_context_synchronously

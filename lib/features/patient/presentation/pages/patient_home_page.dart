@@ -1,21 +1,34 @@
+import 'package:caregiver/features/auth/data/data_sources/auth_service.dart';
+import 'package:caregiver/features/auth/presentation/pages/login_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Import FirebaseAuth 
 
 class PatientHomePage extends StatelessWidget {
-  const PatientHomePage({Key? key}) : super(key: key);
+  final AuthService _authService = AuthService(); // Initialize AuthService
+
+  // Removed the 'const' keyword
+  PatientHomePage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            // Handle back action
-          },
-        ),
+        leading: null,  // Remove the back button by setting leading to null
         title: Text('Patient needs'),
         centerTitle: true,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () async {
+              await _authService.signOut();
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+              );
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
