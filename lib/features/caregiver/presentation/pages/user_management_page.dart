@@ -13,6 +13,8 @@ class UserManagementPage extends StatefulWidget {
 
 class _UserManagementPageState extends State<UserManagementPage> {
   TextEditingController _searchController = TextEditingController();
+  TextEditingController _conditionController =
+      TextEditingController(); // Add a controller for the condition field
   List<DocumentSnapshot> _allPatientsByCareGiverId = [];
   List<DocumentSnapshot> _filteredPatientsByCareGiverId = [];
 
@@ -68,8 +70,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
     }
   }
 
-  void _addNewPatient(
-      String patientId, String patientName, VoidCallback onSuccess) async {
+  void _addNewPatient(String patientId, String patientName, String condition,
+      VoidCallback onSuccess) async {
     User? currentUser = FirebaseAuth.instance.currentUser;
     CollectionReference patients =
         FirebaseFirestore.instance.collection('patients');
@@ -79,7 +81,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
       'caregiverId': currentUser?.uid,
       'lastActivity': DateTime.now().toString(), // Example field
       'id': patientId, // Use the selected patient's ID
-      'condition': ""
+      'condition': condition, // Assign the condition here
     }).then((value) {
       // Call the onSuccess callback after successfully adding the patient
       onSuccess();
@@ -164,6 +166,15 @@ class _UserManagementPageState extends State<UserManagementPage> {
                   labelText: 'Select Patient',
                 ),
               ),
+              SizedBox(height: 16),
+              TextField(
+                controller:
+                    _conditionController, // Use the controller for condition input
+                decoration: InputDecoration(
+                  labelText: 'Condition',
+                  border: OutlineInputBorder(),
+                ),
+              ),
             ],
           ),
           actions: [
@@ -183,6 +194,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
                   _addNewPatient(
                     _selectedPatientId!,
                     patientData['name'],
+                    _conditionController
+                        .text, // Pass the condition to _addNewPatient
                     () {
                       // Callback function after success
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -201,26 +214,28 @@ class _UserManagementPageState extends State<UserManagementPage> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.red,
-        elevation: 0,
-        title: const Text('User Management'),
-        leading: IconButton(
-          icon: Icon(Icons.menu),
-          onPressed: widget.onMenuPressed,
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: _showAddPatientDialog, // Show the add patient form
-          ),
-        ],
+@override
+Widget build(BuildContext context) {
+  
+  return Scaffold(
+    appBar: AppBar(
+      backgroundColor: Colors.red,
+      elevation: 0,
+      title: const Text('User Management'),
+      leading: IconButton(
+        icon: Icon(Icons.menu),
+        onPressed: widget.onMenuPressed,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      actions: [
+        IconButton(
+          icon: Icon(Icons.add),
+          onPressed: _showAddPatientDialog, // Show the add patient form
+        ),
+      ],
+    ),
+    body: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: SingleChildScrollView( // Make the content scrollable
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
@@ -238,46 +253,50 @@ class _UserManagementPageState extends State<UserManagementPage> {
             SizedBox(height: 20),
 
             // List of patients
-            Expanded(
-              child: _filteredPatientsByCareGiverId.isEmpty
-                  ? Center(child: Text('No patients found'))
-                  : ListView.builder(
-                      itemCount: _filteredPatientsByCareGiverId.length,
-                      itemBuilder: (context, index) {
-                        var patientData = _filteredPatientsByCareGiverId[index]
-                            .data() as Map<String, dynamic>;
-                        String patientName = patientData['name'];
-                        String patientId =
-                            _filteredPatientsByCareGiverId[index].id;
+            _filteredPatientsByCareGiverId.isEmpty
+                ? Center(child: Text('No patients found'))
+                : ListView.builder(
+                    shrinkWrap: true, // Shrink the ListView to fit the content
+                    physics: NeverScrollableScrollPhysics(), // Disable ListView's scrolling
+                    itemCount: _filteredPatientsByCareGiverId.length,
+                    itemBuilder: (context, index) {
+                      var patientData = _filteredPatientsByCareGiverId[index]
+                          .data() as Map<String, dynamic>;
+                      String patientName = patientData['name'];
+                      String patientId =
+                          _filteredPatientsByCareGiverId[index].id;
 
-                        return Card(
-                          child: ListTile(
-                            title: Text(patientName),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: Icon(Icons.edit),
-                                  onPressed: () {
-                                    // Navigate to Edit Patient Page
-                                  },
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.delete),
-                                  onPressed: () {
-                                    _showDeleteConfirmationDialog(patientId);
-                                  },
-                                ),
-                              ],
-                            ),
+                      return Card(
+                        child: ListTile(
+                          title: Text(patientName),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.edit),
+                                onPressed: () {
+                                  // Navigate to Edit Patient Page
+                                },
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete),
+                                onPressed: () {
+                                  _showDeleteConfirmationDialog(patientId);
+                                },
+                              ),
+                            ],
                           ),
-                        );
-                      },
-                    ),
-            ),
+                        ),
+                      );
+                    },
+                  ),
           ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+
+
 }

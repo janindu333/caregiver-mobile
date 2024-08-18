@@ -74,32 +74,6 @@ class MenuScreen extends StatelessWidget {
                     },
                   ),
 
-                  // Real-Time Monitoring
-                  ListTile(
-                    contentPadding: EdgeInsets.only(left: 0.0),
-                    leading: Icon(Icons.timeline, color: Colors.white),
-                    title: Text(
-                      "Real-Time Monitoring",
-                      style: style,
-                    ),
-                    onTap: () {
-                      onMenuItemSelected('Real-Time Monitoring');
-                    },
-                  ),
-
-                  // Activity Log
-                  ListTile(
-                    contentPadding: EdgeInsets.only(left: 0.0),
-                    leading: Icon(Icons.history, color: Colors.white),
-                    title: Text(
-                      "Activity Log",
-                      style: style,
-                    ),
-                    onTap: () {
-                      onMenuItemSelected('Activity Log');
-                    },
-                  ),
-
                   // User Management
                   ListTile(
                     contentPadding: EdgeInsets.only(left: 0.0),
@@ -124,62 +98,8 @@ class MenuScreen extends StatelessWidget {
                     onTap: () {
                       onMenuItemSelected('Profile Management');
                     },
-                  ),
-
-                  // Help & Support
-                  ExpansionTile(
-                    leading: Icon(Icons.help, color: Colors.white),
-                    title: Text(
-                      "Help & Support",
-                      style: style,
-                    ),
-                    children: <Widget>[
-                      ListTile(
-                        title: Text(
-                          "Documentation",
-                          style: style,
-                        ),
-                        onTap: () {
-                          onMenuItemSelected('Documentation');
-                        },
-                      ),
-                      ListTile(
-                        title: Text(
-                          "Support Contact",
-                          style: style,
-                        ),
-                        onTap: () {
-                          onMenuItemSelected('Support Contact');
-                        },
-                      ),
-                      ListTile(
-                        title: Text(
-                          "Feedback",
-                          style: style,
-                        ),
-                        onTap: () {
-                          onMenuItemSelected('Feedback');
-                        },
-                      ),
-                    ],
-                  ),
-
-                  // Emergency Contact
-                  ListTile(
-                    contentPadding: EdgeInsets.only(left: 0.0),
-                    leading: Icon(Icons.phone_in_talk, color: Colors.white),
-                    title: Text(
-                      "Emergency Contact",
-                      style: style,
-                    ),
-                    onTap: () {
-                      onMenuItemSelected('Emergency Contact');
-                    },
-                  ),
-
-                  SizedBox(
-                      height: 40),
-
+                  ),  
+              
                   // Logout Button
                   Center(
                     child: OutlinedButton(
