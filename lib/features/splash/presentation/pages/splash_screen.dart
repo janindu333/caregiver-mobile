@@ -4,6 +4,7 @@
 import 'package:caregiver/features/admin/presentation/pages/admin_dashboard_page.dart';
 import 'package:caregiver/features/auth/presentation/pages/login_page.dart';
 import 'package:caregiver/features/caregiver/presentation/pages/caregiver_dashboard_page.dart';
+import 'package:caregiver/features/patient/presentation/pages/patient_home_page.dart'; 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -103,18 +104,4 @@ class _SplashScreenState extends State<SplashScreen> {
 //   }
 // }
 
-class PatientHomePage extends StatelessWidget {
-  const PatientHomePage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Patient Home Page'),
-      ),
-      body: Center(
-        child: Text('Welcome to the Patient Home Page'),
-      ),
-    );
-  }
-}
+ 

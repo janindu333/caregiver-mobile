@@ -74,6 +74,7 @@ class MenuScreen extends StatelessWidget {
                     },
                   ),
 
+
                   // User Management
                   ListTile(
                     contentPadding: EdgeInsets.only(left: 0.0),
@@ -88,17 +89,17 @@ class MenuScreen extends StatelessWidget {
                   ),
 
                   // Profile Management
-                  ListTile(
-                    contentPadding: EdgeInsets.only(left: 0.0),
-                    leading: Icon(Icons.person, color: Colors.white),
-                    title: Text(
-                      "Profile Management",
-                      style: style,
-                    ),
-                    // onTap: () {
-                    //   onMenuItemSelected('Profile Management');
-                    // },
-                  ),  
+                  // ListTile(
+                  //   contentPadding: EdgeInsets.only(left: 0.0),
+                  //   leading: Icon(Icons.person, color: Colors.white),
+                  //   title: Text(
+                  //     "Profile Management",
+                  //     style: style,
+                  //   ),
+                  //   onTap: () {
+                  //     onMenuItemSelected('Profile Management');
+                  //   },
+                  // ),  
               
                   // Logout Button
                   Center(
