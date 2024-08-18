@@ -154,61 +154,87 @@ class PatientHomePage extends StatelessWidget {
     );
   }
 
-  Future<void> _handleNeedSelection(
-      BuildContext context, String needType) async {
-    try {
-      final user = FirebaseAuth.instance.currentUser;
-      if (user != null) {
-        final patientId = user.uid;
+ Future<void> _handleNeedSelection(BuildContext context, String needType) async {
+  try {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final patientId = user.uid;
 
-        // Query the patients collection to find the document with matching patient ID
-        final patientQuerySnapshot = await FirebaseFirestore.instance
-            .collection('patients')
-            .where('id', isEqualTo: patientId)
-            .limit(1)
-            .get();
+      final patientQuerySnapshot = await FirebaseFirestore.instance
+          .collection('patients')
+          .where('id', isEqualTo: patientId)
+          .limit(1)
+          .get();
 
-        if (patientQuerySnapshot.docs.isNotEmpty) {
-          final patientDoc = patientQuerySnapshot.docs.first;
-          final caregiverId = patientDoc.data()['caregiverId'];
+      if (patientQuerySnapshot.docs.isNotEmpty) {
+        final patientDoc = patientQuerySnapshot.docs.first;
+        final caregiverId = patientDoc.data()['caregiverId'];
 
-          // Create a notification record in Firestore
-          await FirebaseFirestore.instance.collection('notifications').add({
-            'caregiverId': caregiverId, // Use the retrieved caregiver ID
-            'patientId': patientId, // Use the logged-in user's ID
-            'title': 'Patient needs help',
-            'body': 'The patient has requested $needType.',
-            'timestamp': FieldValue.serverTimestamp(),
-          });
+        await FirebaseFirestore.instance.collection('notifications').add({
+          'caregiverId': caregiverId,
+          'patientId': patientId,
+          'title': 'Patient needs help',
+          'body': 'The patient has requested $needType.',
+          'timestamp': FieldValue.serverTimestamp(),
+        });
 
-          // Show confirmation message
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Request for $needType sent successfully.')),
-          );
+        await _sendPushNotification(caregiverId, needType);
 
-          // Optionally, trigger Firebase Cloud Messaging to send a push notification
-          // Note: Firebase Cloud Messaging setup is required to use this feature.
-          // await _sendPushNotification(needType);
-        } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to find caregiver information.')),
-          );
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Request for $needType sent successfully.')),
+        );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User is not logged in.')),
+          SnackBar(content: Text('Failed to find caregiver information.')),
         );
       }
-    } catch (e) {
-      // Handle any errors here
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to send request: $e')),
+        SnackBar(content: Text('User is not logged in.')),
       );
     }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to send request: $e')),
+    );
   }
+}
 
-  Future<void> _sendPushNotification(String needType) async {
-    // Implement Firebase Cloud Messaging push notification logic here
-    // You can send a message using Firebase Admin SDK on your server side
+Future<void> _sendPushNotification(String caregiverId, String needType) async {
+  try {
+    // Retrieve the caregiver's FCM token from Firestore
+    final tokenSnapshot = await FirebaseFirestore.instance
+        .collection('users') // Assuming there's a 'users' collection with FCM tokens
+        .doc(caregiverId)
+        .get();
+
+    if (tokenSnapshot.exists) {
+      final fcmToken = tokenSnapshot.data()?['fcmToken'];
+
+      // Assuming you have a Cloud Function to send FCM messages
+      // Call your Cloud Function here to send the notification
+      final data = {
+        'to': fcmToken,
+        'notification': {
+          'title': 'Patient Needs Help',
+          'body': 'The patient has requested $needType.',
+        },
+        'data': {
+          'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+          'need_type': needType,
+        },
+      };
+
+      // Send the request using your preferred HTTP client
+      // For example, you could use `http.post()` to send a request to your Cloud Function
+
+      print('Notification sent successfully');
+    } else {
+      print('No FCM token found for caregiver');
+    }
+  } catch (e) {
+    print('Failed to send push notification: $e');
   }
+}
+
 }
