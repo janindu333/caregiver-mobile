@@ -20,8 +20,7 @@ class _CaregiverDashboardPageState extends State<CaregiverDashboardPage> {
   Widget _getScreen(String page) {
     switch (page) {
       case 'User Management':
-       
-           return UserManagementPage(
+        return UserManagementPage(
           onMenuPressed: () {
             _drawerController.toggle?.call();
           },
@@ -45,8 +44,8 @@ class _CaregiverDashboardPageState extends State<CaregiverDashboardPage> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            Color(0xFFb71c1c),
-            Color(0xFF880e4f),
+            Color(0xFF1E1E2E), // Darker shade for top
+            Color(0xFF8E44AD), // Lighter purple shade for bottom
           ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
