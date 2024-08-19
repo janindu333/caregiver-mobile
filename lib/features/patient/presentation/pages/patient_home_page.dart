@@ -31,6 +31,7 @@ class PatientHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Color(0xFF1E1E2E), // Match the dark gradient from the login screen
         leading: null, // Remove the back button by setting leading to null
         title: FutureBuilder<String?>(
           future: _getUsername(),
@@ -38,18 +39,18 @@ class PatientHomePage extends StatelessWidget {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return CircularProgressIndicator(); // Show loading indicator while fetching data
             } else if (snapshot.hasError) {
-              return Text('Error');
+              return Text('Error', style: TextStyle(color: Colors.white));
             } else if (!snapshot.hasData || snapshot.data == null) {
-              return Text('Patient Needs');
+              return Text('Patient Needs', style: TextStyle(color: Colors.white));
             } else {
-              return Text('Welcome, ${snapshot.data}');
+              return Text('Welcome, ${snapshot.data}', style: TextStyle(color: Colors.white));
             }
           },
         ),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.logout),
+            icon: Icon(Icons.logout, color: Colors.white), // Update icon color to white
             onPressed: () async {
               await _authService.signOut();
               Navigator.pushReplacement(
@@ -70,6 +71,7 @@ class PatientHomePage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
+                color: Colors.white, // Updated text color to white
               ),
             ),
             SizedBox(height: 20),
@@ -137,6 +139,7 @@ class PatientHomePage extends StatelessWidget {
           ],
         ),
       ),
+      backgroundColor: Color(0xFF1E1E2E), // Match the background color to the login screen's dark gradient
     );
   }
 
@@ -149,6 +152,7 @@ class PatientHomePage extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
+      color: Color(0xFF1E1E2E), // Match the card background color to the login screen's dark gradient
       child: InkWell(
         onTap: () async {
           await _handleNeedSelection(context, needType);
@@ -161,7 +165,7 @@ class PatientHomePage extends StatelessWidget {
               Icon(
                 icon,
                 size: 40,
-                color: Theme.of(context).primaryColor,
+                color: Color(0xFF8E44AD), // Use the purple color for the icons
               ),
               Spacer(),
               Text(
@@ -169,13 +173,14 @@ class PatientHomePage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
+                  color: Colors.white, // Updated text color to white
                 ),
               ),
               SizedBox(height: 4),
               Text(
                 subtitle,
                 style: TextStyle(
-                  color: Colors.grey,
+                  color: Colors.white70, // Updated subtitle color to a lighter shade of white
                 ),
               ),
             ],
@@ -282,5 +287,4 @@ class PatientHomePage extends StatelessWidget {
       print('Failed to send push notification: $e');
     }
   }
-
 }
