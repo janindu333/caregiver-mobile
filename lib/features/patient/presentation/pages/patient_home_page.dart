@@ -3,21 +3,49 @@ import 'package:caregiver/features/auth/presentation/pages/login_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
- import 'package:http/http.dart' as http;
+import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 
 class PatientHomePage extends StatelessWidget {
   final AuthService _authService = AuthService(); // Initialize AuthService
 
   PatientHomePage({Key? key}) : super(key: key);
 
+  // Method to fetch the logged-in user's username
+  Future<String?> _getUsername() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      final docSnapshot = await FirebaseFirestore.instance
+          .collection('users') // Assuming user data is stored in 'users' collection
+          .doc(user.uid)
+          .get();
+
+      if (docSnapshot.exists) {
+        return docSnapshot.data()?['email']; // Replace 'username' with the actual field name
+      }
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: null, // Remove the back button by setting leading to null
-        title: Text('Patient needs'),
+        title: FutureBuilder<String?>(
+          future: _getUsername(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return CircularProgressIndicator(); // Show loading indicator while fetching data
+            } else if (snapshot.hasError) {
+              return Text('Error');
+            } else if (!snapshot.hasData || snapshot.data == null) {
+              return Text('Patient Needs');
+            } else {
+              return Text('Welcome, ${snapshot.data}');
+            }
+          },
+        ),
         centerTitle: true,
         actions: [
           IconButton(
@@ -97,15 +125,15 @@ class PatientHomePage extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Handle Call for help action
-                },
-                child: Text('Call for help'),
-              ),
-            ),
+            // SizedBox(
+            //   width: double.infinity,
+            //   child: ElevatedButton(
+            //     onPressed: () {
+            //       // Handle Call for help action
+            //     },
+            //     child: Text('Call for help'),
+            //   ),
+            // ),
           ],
         ),
       ),
@@ -157,102 +185,101 @@ class PatientHomePage extends StatelessWidget {
     );
   }
 
- Future<void> _handleNeedSelection(BuildContext context, String needType) async {
-  try {
-    final user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      final patientId = user.uid;
+  Future<void> _handleNeedSelection(BuildContext context, String needType) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final patientId = user.uid;
 
-      final patientQuerySnapshot = await FirebaseFirestore.instance
-          .collection('patients')
-          .where('id', isEqualTo: patientId)
-          .limit(1)
-          .get();
+        final patientQuerySnapshot = await FirebaseFirestore.instance
+            .collection('patients')
+            .where('id', isEqualTo: patientId)
+            .limit(1)
+            .get();
 
-      if (patientQuerySnapshot.docs.isNotEmpty) {
-        final patientDoc = patientQuerySnapshot.docs.first;
-        final caregiverId = patientDoc.data()['caregiverId'];
+        if (patientQuerySnapshot.docs.isNotEmpty) {
+          final patientDoc = patientQuerySnapshot.docs.first;
+          final caregiverId = patientDoc.data()['caregiverId'];
 
-        await FirebaseFirestore.instance.collection('notifications').add({
-          'caregiverId': caregiverId,
-          'patientId': patientId,
-          'title': 'Patient needs help',
-          'body': 'The patient has requested $needType.',
-          'timestamp': FieldValue.serverTimestamp(),
-        });
-
-        await _sendPushNotification(caregiverId, needType);
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Request for $needType sent successfully.')),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to find caregiver information.')),
-        );
-      }
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('User is not logged in.')),
-      );
-    }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to send request: $e')),
-    );
-  }
-}
-
-Future<void> _sendPushNotification(String caregiverId, String needType) async {
-  try {
-    // Retrieve the caregiver's FCM token from Firestore
-    final tokenSnapshot = await FirebaseFirestore.instance
-        .collection('users') // Assuming there's a 'users' collection with FCM tokens
-        .doc(caregiverId)
-        .get();
-
-    if (tokenSnapshot.exists) {
-      final fcmToken = tokenSnapshot.data()?['fcmToken'];
-
-      if (fcmToken != null) {
-        // Construct the notification payload
-        final data = {
-          'to': fcmToken,
-          'notification': {
-            'title': 'Patient Needs Help',
+          await FirebaseFirestore.instance.collection('notifications').add({
+            'caregiverId': caregiverId,
+            'patientId': patientId,
+            'title': 'Patient needs help',
             'body': 'The patient has requested $needType.',
-          },
-          'data': {
-            'click_action': 'FLUTTER_NOTIFICATION_CLICK',
-            'need_type': needType,
-          },
-        };
+            'timestamp': FieldValue.serverTimestamp(),
+          });
 
-        // Send the notification using HTTP POST to FCM endpoint
-        final response = await http.post(
-          Uri.parse('https://fcm.googleapis.com/fcm/send'),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'key=AIzaSyCJ_g2UrZoeRiC1Xb6QPykbyuD-q-tZBZc',  // Replace with your FCM server key
-          },
-          body: jsonEncode(data),
-        );
+          await _sendPushNotification(caregiverId, needType);
 
-        if (response.statusCode == 200) {
-          print('Notification sent successfully');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Request for $needType sent successfully.')),
+          );
         } else {
-          print('Failed to send notification: ${response.statusCode}');
-          print('Response body: ${response.body}');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Failed to find caregiver information.')),
+          );
         }
       } else {
-        print('No FCM token found for caregiver');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('User is not logged in.')),
+        );
       }
-    } else {
-      print('No such document exists!');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to send request: $e')),
+      );
     }
-  } catch (e) {
-    print('Failed to send push notification: $e');
   }
-}
 
+  Future<void> _sendPushNotification(String caregiverId, String needType) async {
+    try {
+      // Retrieve the caregiver's FCM token from Firestore
+      final tokenSnapshot = await FirebaseFirestore.instance
+          .collection('users') // Assuming there's a 'users' collection with FCM tokens
+          .doc(caregiverId)
+          .get();
+
+      if (tokenSnapshot.exists) {
+        final fcmToken = tokenSnapshot.data()?['fcmToken'];
+
+        if (fcmToken != null) {
+          // Construct the notification payload
+          final data = {
+            'to': fcmToken,
+            'notification': {
+              'title': 'Patient Needs Help',
+              'body': 'The patient has requested $needType.',
+            },
+            'data': {
+              'click_action': 'FLUTTER_NOTIFICATION_CLICK',
+              'need_type': needType,
+            },
+          };
+
+          // Send the notification using HTTP POST to FCM endpoint
+          final response = await http.post(
+            Uri.parse('https://fcm.googleapis.com/fcm/send'),
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'key=AIzaSyCJ_g2UrZoeRiC1Xb6QPykbyuD-q-tZBZc',  // Replace with your FCM server key
+            },
+            body: jsonEncode(data),
+          );
+
+          if (response.statusCode == 200) {
+            print('Notification sent successfully');
+          } else {
+            print('Failed to send notification: ${response.statusCode}');
+            print('Response body: ${response.body}');
+          }
+        } else {
+          print('No FCM token found for caregiver');
+        }
+      } else {
+        print('No such document exists!');
+      }
+    } catch (e) {
+      print('Failed to send push notification: $e');
+    }
+  }
 }
