@@ -22,33 +22,33 @@ class _SignupPageState extends State<SignupPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
- @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    body: Stack(
-      children: [
-        Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [Color(0xFF1E1E2E), Color(0xFF8E44AD)],
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-            ),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        width: double.infinity,
+        height: double.infinity,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF1E1E2E), Color(0xFF8E44AD)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
-          child: SingleChildScrollView(  // <-- Added here
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 50.0),
+              padding: const EdgeInsets.symmetric(horizontal: 30.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Back button
                   IconButton(
                     icon: Icon(Icons.arrow_back, color: Colors.white),
                     onPressed: () {
                       Navigator.pop(context);
                     },
                   ),
-                  SizedBox(height: 20),  // Adjust the space here
+                  SizedBox(height: 20),
                   Center(
                     child: Text(
                       'Create Account',
@@ -210,12 +210,9 @@ Widget build(BuildContext context) {
             ),
           ),
         ),
-      ],
-    ),
-  );
-}
-
-
+      ),
+    );
+  }
 
   void _togglePasswordVisibility() {
     setState(() {
@@ -261,7 +258,6 @@ Widget build(BuildContext context) {
       if (user != null) {
         DocumentReference docRef = _firestore.collection('users').doc(user.uid);
 
-        // Use the Firestore-generated ID as the 'id' field in the document
         await docRef.set({
           'id': docRef.id, // Firestore-generated unique ID
           'name': _nameController.text.trim(),

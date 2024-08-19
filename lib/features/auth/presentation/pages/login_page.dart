@@ -40,7 +40,7 @@ class _LoginPageState extends State<LoginPage> {
                   Spacer(),
                   Center(
                     child: Text(
-                      'Welcome Back!',
+                      'Care Giver',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 28,
@@ -106,13 +106,7 @@ class _LoginPageState extends State<LoginPage> {
                     style: TextStyle(color: Colors.white),
                   ),
                   SizedBox(height: 10),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      'Forgot Password?',
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                  ),
+                 
                   SizedBox(height: 20),
                   Container(
                     width: double.infinity,
