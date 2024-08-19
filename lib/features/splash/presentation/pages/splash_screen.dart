@@ -1,6 +1,3 @@
-// import 'package:caregiver/features/admin/presentation/pages/admin_dashboard_page.dart';
-// import 'package:caregiver/features/caregiver/presentation/pages/caregiver_dashboard_page.dart';
-// import 'package:caregiver/features/auth/presentation/pages/loginpage.dart';
 import 'package:caregiver/features/admin/presentation/pages/admin_dashboard_page.dart';
 import 'package:caregiver/features/auth/presentation/pages/login_page.dart';
 import 'package:caregiver/features/caregiver/presentation/pages/caregiver_dashboard_page.dart';
@@ -13,7 +10,6 @@ class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
   _SplashScreenState createState() => _SplashScreenState();
 }
 
@@ -31,7 +27,6 @@ class _SplashScreenState extends State<SplashScreen> {
     if (user == null) {
       // User is not logged in, navigate to Login Page
       Navigator.pushReplacement(
-          // ignore: use_build_context_synchronously
           context,
           MaterialPageRoute(builder: (context) => LoginPage()));
     } else {
@@ -49,22 +44,18 @@ class _SplashScreenState extends State<SplashScreen> {
 
       if (role == 'patient') {
         Navigator.pushReplacement(
-            // ignore: use_build_context_synchronously
             context,
-            MaterialPageRoute(builder: (context) =>   PatientHomePage()));
+            MaterialPageRoute(builder: (context) => PatientHomePage()));
       } else if (role == 'caregiver') {
         Navigator.pushReplacement(
-            // ignore: use_build_context_synchronously
-            context, MaterialPageRoute(builder: (context) =>  CaregiverDashboardPage()));
+            context, MaterialPageRoute(builder: (context) => CaregiverDashboardPage()));
       } else if (role == 'admin') {
         Navigator.pushReplacement(
-            // ignore: use_build_context_synchronously
             context, MaterialPageRoute(builder: (context) => const AdminDashboardPage()));
       }
     } else {
       // Handle the case where the user does not have a role assigned
       Navigator.pushReplacement(
-          // ignore: use_build_context_synchronously
           context,
           MaterialPageRoute(builder: (context) => LoginPage()));
     }
@@ -73,35 +64,35 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blue,
+      backgroundColor: Color(0xFF1E1E2E), // Updated background color to match login page
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            // Image.asset('assets/logo.png', height: 100),
+            // "Care Giver" text with a beautiful style
+            Text(
+              'Care Giver',
+              style: TextStyle(
+                color: Color(0xFF8E44AD), // Purple color to match the theme
+                fontSize: 36, // Large font size
+                fontWeight: FontWeight.bold, // Bold text
+                letterSpacing: 2, // Spacing between letters for a modern look
+                shadows: [
+                  Shadow(
+                    blurRadius: 10.0, // Soft shadow
+                    color: Colors.black.withOpacity(0.5),
+                    offset: Offset(5.0, 5.0),
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 20),
-            const CircularProgressIndicator(),
+            const CircularProgressIndicator(
+              color: Color(0xFF8E44AD), // Updated color of the loading indicator to match login page
+            ),
           ],
         ),
       ),
     );
   }
 }
-
-// class LoginPage extends StatelessWidget {
-//   const LoginPage({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Login'),
-//       ),
-//       body: const Center(
-//         child: Text('Login Page'),
-//       ),
-//     );
-//   }
-// }
-
- 
