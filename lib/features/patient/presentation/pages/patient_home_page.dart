@@ -282,4 +282,5 @@ class PatientHomePage extends StatelessWidget {
       print('Failed to send push notification: $e');
     }
   }
+
 }

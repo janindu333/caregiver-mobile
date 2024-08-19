@@ -16,6 +16,8 @@ class _UserManagementPageState extends State<UserManagementPage> {
   TextEditingController _conditionController = TextEditingController();
   List<DocumentSnapshot> _allPatientsByCareGiverId = [];
   List<DocumentSnapshot> _filteredPatientsByCareGiverId = [];
+  List<DocumentSnapshot> _allPatients = [];
+  List<DocumentSnapshot> _filteredPatients = [];
   String? _selectedPatientId;
 
   @override
@@ -36,14 +38,25 @@ class _UserManagementPageState extends State<UserManagementPage> {
     });
   }
 
+  void _fetchPatients() async {
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+
+    QuerySnapshot querySnapshot = await users.where('role', isEqualTo: 'patient').get();
+
+    setState(() {
+      _allPatients = querySnapshot.docs;
+      _filteredPatients = querySnapshot.docs;
+    });
+  }
+
   void _filterPatients(String query) {
     if (query.isEmpty) {
       setState(() {
-        _filteredPatientsByCareGiverId = _allPatientsByCareGiverId;
+        _filteredPatients = _allPatients;
       });
     } else {
       setState(() {
-        _filteredPatientsByCareGiverId = _allPatientsByCareGiverId.where((patient) {
+        _filteredPatients = _allPatients.where((patient) {
           String name = (patient.data() as Map<String, dynamic>)['name'];
           return name.toLowerCase().contains(query.toLowerCase());
         }).toList();
@@ -114,24 +127,90 @@ class _UserManagementPageState extends State<UserManagementPage> {
   }
 
   void _showAddPatientDialog() {
-    // Implement logic to show add patient dialog
+    _fetchPatients();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Assign Patient'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButtonFormField<String>(
+                value: _selectedPatientId,
+                items: _filteredPatients.map((patient) {
+                  var patientData = patient.data() as Map<String, dynamic>;
+                  return DropdownMenuItem<String>(
+                    value: patient.id,
+                    child: Text(patientData['name']),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedPatientId = value;
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: 'Select Patient',
+                ),
+              ),
+              SizedBox(height: 16),
+              TextField(
+                controller: _conditionController,
+                decoration: InputDecoration(
+                  labelText: 'Condition',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (_selectedPatientId != null) {
+                  var selectedPatient = _filteredPatients.firstWhere(
+                      (patient) => patient.id == _selectedPatientId);
+                  var patientData = selectedPatient.data() as Map<String, dynamic>;
+                  _addNewPatient(
+                    _selectedPatientId!,
+                    patientData['name'],
+                    _conditionController.text,
+                    () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Patient assigned successfully')),
+                      );
+                    },
+                  );
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: Color(0xFF1E1E2E), // Updated to match login page color
         elevation: 0,
-        title: Text(
+        title: const Text(
           'Patient List',
-          style: TextStyle(
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
+          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold), // Updated text color to white
         ),
         leading: IconButton(
-          icon: Icon(Icons.menu, color: Colors.black),
+          icon: Icon(Icons.menu, color: Colors.white), // Updated icon color to white
           onPressed: widget.onMenuPressed,
         ),
       ),
@@ -140,14 +219,13 @@ class _UserManagementPageState extends State<UserManagementPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            // Search bar
             TextField(
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Search for a patient',
-                prefixIcon: Icon(Icons.search, color: Colors.grey),
+                prefixIcon: Icon(Icons.search, color: Colors.white70), // Updated icon color
                 filled: true,
-                fillColor: Colors.grey[200],
+                fillColor: Colors.black.withOpacity(0.2), // Updated to match login page color
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -156,15 +234,15 @@ class _UserManagementPageState extends State<UserManagementPage> {
               onChanged: (value) {
                 _filterPatients(value);
               },
+              style: TextStyle(color: Colors.white), // Updated text color
             ),
             SizedBox(height: 20),
-            // Assign Patient Button
             Center(
               child: ElevatedButton(
                 onPressed: _showAddPatientDialog,
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  backgroundColor: Colors.blue,
+                  backgroundColor: Color(0xFF8E44AD), // Updated button color to match login page
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -180,10 +258,9 @@ class _UserManagementPageState extends State<UserManagementPage> {
               ),
             ),
             SizedBox(height: 20),
-            // List of patients
             Expanded(
               child: _filteredPatientsByCareGiverId.isEmpty
-                  ? Center(child: Text('No patients found'))
+                  ? Center(child: Text('No patients found', style: TextStyle(color: Colors.white70))) // Updated text color
                   : ListView.builder(
                       itemCount: _filteredPatientsByCareGiverId.length,
                       itemBuilder: (context, index) {
@@ -197,6 +274,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           margin: EdgeInsets.symmetric(vertical: 10),
+                          color: Color(0xFF1E1E2E), // Updated card background color to match login page
                           child: ListTile(
                             contentPadding: EdgeInsets.all(10),
                             title: Text(
@@ -204,33 +282,24 @@ class _UserManagementPageState extends State<UserManagementPage> {
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
+                                color: Colors.white, // Updated text color
                               ),
                             ),
-                            subtitle: Text('Condition: $patientCondition, Status: Good'), // Update the status field accordingly
+                            subtitle: Text(
+                              'Condition: $patientCondition',
+                              style: TextStyle(color: Colors.white70), // Updated text color
+                            ),
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                TextButton(
-                                  onPressed: () {
-                                    // Handle view details action
-                                  },
-                                  style: TextButton.styleFrom(
-                                    backgroundColor: Colors.grey[200],
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  child: Text('View details'),
-                                ),
-                                SizedBox(width: 8),
                                 IconButton(
-                                  icon: Icon(Icons.edit),
+                                  icon: Icon(Icons.edit, color: Colors.white70), // Updated icon color
                                   onPressed: () {
                                     // Navigate to Edit Patient Page
                                   },
                                 ),
                                 IconButton(
-                                  icon: Icon(Icons.delete),
+                                  icon: Icon(Icons.delete, color: Colors.white70), // Updated icon color
                                   onPressed: () {
                                     _showDeleteConfirmationDialog(patientId);
                                   },

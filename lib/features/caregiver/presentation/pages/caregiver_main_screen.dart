@@ -16,11 +16,14 @@ class CaregiverMainScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.red,
+        backgroundColor: Color(0xFF1E1E2E), // Same background color as before
         elevation: 0,
-        title: const Text('Dashboard'),
+        title: const Text('Dashboard',
+            style:
+                TextStyle(color: Colors.white)), // Set the title color to white
         leading: IconButton(
-          icon: Icon(Icons.menu),
+          icon: Icon(Icons.menu,
+              color: Colors.white), // Set the hamburger icon color to white
           onPressed: onMenuPressed,
         ),
       ),
@@ -33,7 +36,11 @@ class CaregiverMainScreen extends StatelessWidget {
               // Overview Section
               Text(
                 'Overview',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF8E44AD), // Updated to match login page color
+                ),
               ),
               SizedBox(height: 10),
               StreamBuilder<QuerySnapshot>(
@@ -47,13 +54,14 @@ class CaregiverMainScreen extends StatelessWidget {
                   }
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                     return Card(
-                      color: Colors.red[50],
+                      color: Color(0xFF1E1E2E), // Updated background color
                       child: ListTile(
                         title: Text(
                           'No assigned patients found.',
-                          style: TextStyle(fontSize: 16),
+                          style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
-                        leading: Icon(Icons.person_off, color: Colors.red),
+                        leading: Icon(Icons.person_off,
+                            color: Color(0xFF8E44AD)), // Updated icon color
                       ),
                     );
                   }
@@ -62,17 +70,19 @@ class CaregiverMainScreen extends StatelessWidget {
                     children: patientsList.map((patient) {
                       var patientData = patient.data() as Map<String, dynamic>;
                       return Card(
-                        color: Colors.red[50],
+                        color: Color(0xFF1E1E2E), // Updated background color
                         child: ListTile(
                           title: Text(
                             '${patientData['name']}',
-                            style: TextStyle(fontSize: 16),
+                            style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                           subtitle: Text(
                             'Condition: ${patientData['condition']}\nLast Activity: ${patientData['lastActivity']}',
-                            style: TextStyle(fontSize: 14),
+                            style:
+                                TextStyle(fontSize: 14, color: Colors.white70),
                           ),
-                          leading: Icon(Icons.person, color: Colors.red),
+                          leading: Icon(Icons.person,
+                              color: Color(0xFF8E44AD)), // Updated icon color
                         ),
                       );
                     }).toList(),
@@ -84,7 +94,11 @@ class CaregiverMainScreen extends StatelessWidget {
               // Recent Notifications Section
               Text(
                 'Recent Notifications',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF8E44AD), // Updated to match login page color
+                ),
               ),
               SizedBox(height: 10),
 
@@ -101,14 +115,14 @@ class CaregiverMainScreen extends StatelessWidget {
                   }
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                     return Card(
-                      color: Colors.yellow[50],
+                      color: Color(0xFF1E1E2E), // Updated background color
                       child: ListTile(
                         title: Text(
                           'No recent notifications found.',
-                          style: TextStyle(fontSize: 16),
+                          style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
                         leading: Icon(Icons.notifications_off,
-                            color: Colors.yellow[700]),
+                            color: Color(0xFF8E44AD)), // Updated icon color
                       ),
                     );
                   }
@@ -133,18 +147,22 @@ class CaregiverMainScreen extends StatelessWidget {
                             print(
                                 'Patient document does not exist for ID: $patientId');
                             return Card(
-                              color: Colors.yellow[50],
+                              color:
+                                  Color(0xFF1E1E2E), // Updated background color
                               child: ListTile(
                                 title: Text(
                                   '${notificationData['title']}',
-                                  style: TextStyle(fontSize: 16),
+                                  style: TextStyle(
+                                      fontSize: 16, color: Colors.white),
                                 ),
                                 subtitle: Text(
                                   'Patient not found',
-                                  style: TextStyle(fontSize: 14),
+                                  style: TextStyle(
+                                      fontSize: 14, color: Colors.white70),
                                 ),
                                 leading: Icon(Icons.notifications,
-                                    color: Colors.yellow[700]),
+                                    color: Color(
+                                        0xFF8E44AD)), // Updated icon color
                               ),
                             );
                           }
@@ -153,18 +171,22 @@ class CaregiverMainScreen extends StatelessWidget {
                           String patientName = patientData['name'];
 
                           return Card(
-                            color: Colors.yellow[50],
+                            color:
+                                Color(0xFF1E1E2E), // Updated background color
                             child: ListTile(
                               title: Text(
                                 '${notificationData['title']}',
-                                style: TextStyle(fontSize: 16),
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.white),
                               ),
                               subtitle: Text(
                                 '${notificationData['body']} - Patient: $patientName',
-                                style: TextStyle(fontSize: 14),
+                                style: TextStyle(
+                                    fontSize: 14, color: Colors.white70),
                               ),
                               leading: Icon(Icons.notifications,
-                                  color: Colors.yellow[700]),
+                                  color:
+                                      Color(0xFF8E44AD)), // Updated icon color
                             ),
                           );
                         },
