@@ -1,11 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart'; // Import the intl package
 
 class CaregiverMainScreen extends StatelessWidget {
   final VoidCallback onMenuPressed;
 
   const CaregiverMainScreen({required this.onMenuPressed});
+
+  String formatDate(String timestamp) {
+    try {
+      DateTime dateTime = DateTime.parse(timestamp);
+      return DateFormat('dd MMM yyyy, hh:mm a').format(dateTime);
+    } catch (e) {
+      return timestamp; // If parsing fails, return the original string
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +87,7 @@ class CaregiverMainScreen extends StatelessWidget {
                             style: TextStyle(fontSize: 16, color: Colors.white),
                           ),
                           subtitle: Text(
-                            'Condition: ${patientData['condition']}\nLast Activity: ${patientData['lastActivity']}',
+                            'Condition: ${patientData['condition']}\nLast Activity: ${formatDate(patientData['lastActivity'])}', // Updated to use formatted date
                             style:
                                 TextStyle(fontSize: 14, color: Colors.white70),
                           ),
@@ -106,6 +116,7 @@ class CaregiverMainScreen extends StatelessWidget {
                 stream: FirebaseFirestore.instance
                     .collection('notifications')
                     .where('caregiverId', isEqualTo: currentUser?.uid)
+                    // .orderBy('timestamp', descending: true)
                     .limit(5)
                     .snapshots(),
                 builder: (context, snapshot) {

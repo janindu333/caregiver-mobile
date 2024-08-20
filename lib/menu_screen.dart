@@ -27,6 +27,9 @@ class MenuScreen extends StatelessWidget {
             ? androidStyle
             : iosStyle;
 
+    // Get the current user's email
+    final email = _authService.getCurrentUser()?.email ?? 'No email available';
+
     return Scaffold(
       backgroundColor: Colors.transparent, // Make the background transparent
       body: SafeArea(
@@ -46,6 +49,12 @@ class MenuScreen extends StatelessWidget {
                   "Welcome",
                   style: style.copyWith(
                       fontSize: 22, fontWeight: FontWeight.w900),
+                ),
+                SizedBox(height: 10),
+                Text(
+                  email,
+                  style: style.copyWith(
+                      fontSize: 16, fontWeight: FontWeight.normal),
                 ),
                 SizedBox(height: 20),
 
