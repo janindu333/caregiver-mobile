@@ -113,7 +113,7 @@ class _SignupPageState extends State<SignupPage> {
                       ),
                     ),
                     dropdownColor: Colors.black.withOpacity(0.7),
-                    items: ['admin', 'caregiver', 'patient']
+                    items: ['caregiver', 'patient']
                         .map((role) => DropdownMenuItem(
                               value: role,
                               child: Text(
