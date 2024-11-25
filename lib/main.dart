@@ -1,3 +1,4 @@
+// Main Entry File (main.dart)
 import 'package:caregiver/features/admin/presentation/pages/admin_dashboard_page.dart';
 import 'package:caregiver/features/caregiver/presentation/pages/caregiver_dashboard_page.dart';
 import 'package:caregiver/features/patient/presentation/pages/patient_home_page.dart';
@@ -41,7 +42,6 @@ class _MyAppState extends State<MyApp> {
     _requestPermission();
     _getToken();
 
-    // Initialize the local notifications plugin
     var initializationSettingsAndroid =
         AndroidInitializationSettings('@mipmap/ic_launcher');
     var initializationSettingsIOS = DarwinInitializationSettings();
@@ -51,13 +51,11 @@ class _MyAppState extends State<MyApp> {
     flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
     flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
-    // Handle messages while the app is in the foreground
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       print('Got a message whilst in the foreground!');
       print('Message data: ${message.data}');
 
       if (message.notification != null) {
-        print('Message also contained a notification: ${message.notification}');
         _showNotification(
           message.notification!.title ?? 'No Title',
           message.notification!.body ?? 'No Body',
@@ -65,13 +63,11 @@ class _MyAppState extends State<MyApp> {
       }
     });
 
-    // Handle messages when the app is opened from a terminated state
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       print('A new onMessageOpenedApp event was published!');
       // Handle deep linking or navigation here
     });
 
-    // Optionally, handle initial messages when the app is opened directly from a terminated state
     FirebaseMessaging.instance
         .getInitialMessage()
         .then((RemoteMessage? message) {
@@ -125,7 +121,6 @@ class _MyAppState extends State<MyApp> {
     print("FCM Token: $token");
 
     if (token != null) {
-      // Save the token to your server or Firestore database
       await _saveTokenToFirestore(token);
     }
   }

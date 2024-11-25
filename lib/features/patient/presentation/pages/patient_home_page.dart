@@ -1,3 +1,4 @@
+// PatientHomePage.dart
 import 'package:caregiver/features/auth/data/data_sources/auth_service.dart';
 import 'package:caregiver/features/auth/presentation/pages/login_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -7,21 +8,20 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class PatientHomePage extends StatelessWidget {
-  final AuthService _authService = AuthService(); // Initialize AuthService
+  final AuthService _authService = AuthService();
 
   PatientHomePage({Key? key}) : super(key: key);
 
-  // Method to fetch the logged-in user's username
   Future<String?> _getUsername() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       final docSnapshot = await FirebaseFirestore.instance
-          .collection('users') // Assuming user data is stored in 'users' collection
+          .collection('users')
           .doc(user.uid)
           .get();
 
       if (docSnapshot.exists) {
-        return docSnapshot.data()?['email']; // Replace 'username' with the actual field name
+        return docSnapshot.data()?['email']; // Replace with actual field name
       }
     }
     return null;
@@ -31,26 +31,28 @@ class PatientHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF1E1E2E), // Match the dark gradient from the login screen
-        leading: null, // Remove the back button by setting leading to null
+        backgroundColor: Color(0xFF1E1E2E),
+        leading: null,
         title: FutureBuilder<String?>(
           future: _getUsername(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator(); // Show loading indicator while fetching data
+              return CircularProgressIndicator();
             } else if (snapshot.hasError) {
               return Text('Error', style: TextStyle(color: Colors.white));
             } else if (!snapshot.hasData || snapshot.data == null) {
-              return Text('Patient Needs', style: TextStyle(color: Colors.white));
+              return Text('Patient Needs',
+                  style: TextStyle(color: Colors.white));
             } else {
-              return Text('Welcome, ${snapshot.data}', style: TextStyle(color: Colors.white));
+              return Text('Welcome, ${snapshot.data}',
+                  style: TextStyle(color: Colors.white));
             }
           },
         ),
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.logout, color: Colors.white), // Update icon color to white
+            icon: Icon(Icons.logout, color: Colors.white),
             onPressed: () async {
               await _authService.signOut();
               Navigator.pushReplacement(
@@ -71,7 +73,7 @@ class PatientHomePage extends StatelessWidget {
               style: TextStyle(
                 fontSize: 24,
                 fontWeight: FontWeight.bold,
-                color: Colors.white, // Updated text color to white
+                color: Colors.white,
               ),
             ),
             SizedBox(height: 20),
@@ -126,20 +128,10 @@ class PatientHomePage extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 20),
-            // SizedBox(
-            //   width: double.infinity,
-            //   child: ElevatedButton(
-            //     onPressed: () {
-            //       // Handle Call for help action
-            //     },
-            //     child: Text('Call for help'),
-            //   ),
-            // ),
           ],
         ),
       ),
-      backgroundColor: Color(0xFF1E1E2E), // Match the background color to the login screen's dark gradient
+      backgroundColor: Color(0xFF1E1E2E),
     );
   }
 
@@ -152,7 +144,7 @@ class PatientHomePage extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10),
       ),
-      color: Color(0xFF1E1E2E), // Match the card background color to the login screen's dark gradient
+      color: Color(0xFF1E1E2E),
       child: InkWell(
         onTap: () async {
           await _handleNeedSelection(context, needType);
@@ -165,7 +157,7 @@ class PatientHomePage extends StatelessWidget {
               Icon(
                 icon,
                 size: 40,
-                color: Color(0xFF8E44AD), // Use the purple color for the icons
+                color: Color(0xFF8E44AD),
               ),
               Spacer(),
               Text(
@@ -173,14 +165,14 @@ class PatientHomePage extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white, // Updated text color to white
+                  color: Colors.white,
                 ),
               ),
               SizedBox(height: 4),
               Text(
                 subtitle,
                 style: TextStyle(
-                  color: Colors.white70, // Updated subtitle color to a lighter shade of white
+                  color: Colors.white70,
                 ),
               ),
             ],
@@ -190,7 +182,8 @@ class PatientHomePage extends StatelessWidget {
     );
   }
 
-  Future<void> _handleNeedSelection(BuildContext context, String needType) async {
+  Future<void> _handleNeedSelection(
+      BuildContext context, String needType) async {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
@@ -236,11 +229,11 @@ class PatientHomePage extends StatelessWidget {
     }
   }
 
-  Future<void> _sendPushNotification(String caregiverId, String needType) async {
+  Future<void> _sendPushNotification(
+      String caregiverId, String needType) async {
     try {
-      // Retrieve the caregiver's FCM token from Firestore
       final tokenSnapshot = await FirebaseFirestore.instance
-          .collection('users') // Assuming there's a 'users' collection with FCM tokens
+          .collection('users')
           .doc(caregiverId)
           .get();
 
@@ -248,25 +241,23 @@ class PatientHomePage extends StatelessWidget {
         final fcmToken = tokenSnapshot.data()?['fcmToken'];
 
         if (fcmToken != null) {
-          // Construct the notification payload
-          final data = {
-            'to': fcmToken,
-            'notification': {
-              'title': 'Patient Needs Help',
-              'body': 'The patient has requested $needType.',
-            },
-            'data': {
-              'click_action': 'FLUTTER_NOTIFICATION_CLICK',
-              'need_type': needType,
-            },
+          final String apiUrl =
+              'https://sleepy-earth-25719-ff687c3d2faa.herokuapp.com/send-notification';
+
+          final Map<String, dynamic> data = {
+            "token": fcmToken,
+            "title": "Patient Needs Help",
+            "body": "The patient has requested $needType.",
+            "data": {
+              "click_action": "CAREGIVE NOTIFICATION",
+              "need_type": needType
+            }
           };
 
-          // Send the notification using HTTP POST to FCM endpoint
           final response = await http.post(
-            Uri.parse('https://fcm.googleapis.com/fcm/send'),
+            Uri.parse(apiUrl),
             headers: {
               'Content-Type': 'application/json',
-              'Authorization': 'key=AIzaSyCJ_g2UrZoeRiC1Xb6QPykbyuD-q-tZBZc',  // Replace with your FCM server key
             },
             body: jsonEncode(data),
           );
@@ -287,6 +278,4 @@ class PatientHomePage extends StatelessWidget {
       print('Failed to send push notification: $e');
     }
   }
-
-
 }
