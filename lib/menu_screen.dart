@@ -31,37 +31,47 @@ class MenuScreen extends StatelessWidget {
     final email = _authService.getCurrentUser()?.email ?? 'No email available';
 
     return Scaffold(
-      backgroundColor: Colors.transparent, // Make the background transparent
+      backgroundColor: Color(0xFF1E1E2E), // Dark Gray Background
       body: SafeArea(
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.symmetric(
-                vertical: 20.0, horizontal: 10.0),
+            padding:
+                const EdgeInsets.symmetric(vertical: 20.0, horizontal: 10.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                // Profile Avatar
                 CircleAvatar(
                   radius: 40,
                   backgroundImage: AssetImage('assets/images/user.png'),
+                  backgroundColor:
+                      Colors.grey.shade800, // Consistent with grayscale
                 ),
                 SizedBox(height: 20),
+                // Welcome Text
                 Text(
                   "Welcome",
                   style: style.copyWith(
-                      fontSize: 22, fontWeight: FontWeight.w900),
+                      fontSize: 22,
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white),
                 ),
                 SizedBox(height: 10),
+                // Email Text
                 Text(
                   email,
                   style: style.copyWith(
-                      fontSize: 16, fontWeight: FontWeight.normal),
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.white70),
                 ),
                 SizedBox(height: 20),
 
-                // Dashboard
+                // Dashboard Menu Item
                 ListTile(
                   contentPadding: EdgeInsets.only(left: 0.0),
-                  leading: Icon(Icons.dashboard, color: Colors.white),
+                  leading: Icon(Icons.dashboard,
+                      color: Color(0xFF11B3C6)), // Blue Icon
                   title: Text(
                     "Dashboard",
                     style: style,
@@ -71,10 +81,11 @@ class MenuScreen extends StatelessWidget {
                   },
                 ),
 
-                // User Management
+                // User Management Menu Item
                 ListTile(
                   contentPadding: EdgeInsets.only(left: 0.0),
-                  leading: Icon(Icons.people, color: Colors.white),
+                  leading:
+                      Icon(Icons.people, color: Color(0xFF11B3C6)), // Blue Icon
                   title: Text(
                     "User Management",
                     style: style,
@@ -95,7 +106,8 @@ class MenuScreen extends StatelessWidget {
                       );
                     },
                     style: OutlinedButton.styleFrom(
-                      side: BorderSide(color: Colors.white, width: 2.0),
+                      side: BorderSide(
+                          color: Color(0xFF11B3C6), width: 2.0), // Blue Outline
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16.0),
                       ),
@@ -105,7 +117,10 @@ class MenuScreen extends StatelessWidget {
                     ),
                     child: Text(
                       "Logout",
-                      style: style.copyWith(fontSize: 18),
+                      style: style.copyWith(
+                        fontSize: 18,
+                        color: Color(0xFF11B3C6), // Blue Text
+                      ),
                     ),
                   ),
                 ),

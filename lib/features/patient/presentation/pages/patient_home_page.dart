@@ -31,7 +31,7 @@ class PatientHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF1E1E2E),
+        backgroundColor: Color(0xFF626A74), // Updated to Gray
         leading: null,
         title: FutureBuilder<String?>(
           future: _getUsername(),
@@ -80,8 +80,9 @@ class PatientHomePage extends StatelessWidget {
             Expanded(
               child: GridView.count(
                 crossAxisCount: 2,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
+                crossAxisSpacing: 15, // Space between columns
+                mainAxisSpacing: 15, // Space between rows
+                childAspectRatio: 0.7, // Reduced value for taller cards
                 children: [
                   _buildOptionCard(
                     context,
@@ -131,7 +132,7 @@ class PatientHomePage extends StatelessWidget {
           ],
         ),
       ),
-      backgroundColor: Color(0xFF1E1E2E),
+      backgroundColor: Color(0xFF626A74), // Updated to Gray
     );
   }
 
@@ -140,42 +141,49 @@ class PatientHomePage extends StatelessWidget {
       required String title,
       required String subtitle,
       required String needType}) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      color: Color(0xFF1E1E2E),
-      child: InkWell(
-        onTap: () async {
-          await _handleNeedSelection(context, needType);
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(
-                icon,
-                size: 40,
-                color: Color(0xFF8E44AD),
-              ),
-              Spacer(),
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
+    return SizedBox(
+      height: 250, // Increased height
+      child: Card(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        color: Color(0xFF1E1E2E), // Keep card background subtle
+        child: InkWell(
+          onTap: () async {
+            await _handleNeedSelection(context, needType);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  size: 100, // Large icon
+                  color: Color(0xFF11B3C6), // Updated to Blue
                 ),
-              ),
-              SizedBox(height: 4),
-              Text(
-                subtitle,
-                style: TextStyle(
-                  color: Colors.white70,
+                SizedBox(height: 8), // Space between icon and title
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
-            ],
+                SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.white70,
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

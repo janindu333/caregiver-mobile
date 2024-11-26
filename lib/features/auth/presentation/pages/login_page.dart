@@ -18,7 +18,6 @@ class _LoginPageState extends State<LoginPage> {
 
   final AuthService _authService = AuthService();
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -27,127 +26,139 @@ class _LoginPageState extends State<LoginPage> {
           Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Color(0xFF1E1E2E), Color(0xFF8E44AD)],
+                colors: [
+                  Color(0xFF626A74),
+                  Color(0xFF1E1E2E),
+                ],
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
               ),
             ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 50.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Spacer(),
-                  Center(
-                    child: Text(
-                      'Care Giver',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 10),
-                  Center(
-                    child: Text(
-                      'welcome back we missed you',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: 30),
-                  if (_errorMessage != null) ...[
-                    Text(
-                      _errorMessage!,
-                      style: TextStyle(color: Colors.red, fontSize: 14),
-                    ),
-                    SizedBox(height: 10),
-                  ],
-                  TextField(
-                    controller: _emailController,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.black.withOpacity(0.2),
-                      prefixIcon: Icon(Icons.person, color: Colors.white),
-                      hintText: 'Username',
-                      hintStyle: TextStyle(color: Colors.white70),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  SizedBox(height: 20),
-                  TextField(
-                    controller: _passwordController,
-                    obscureText: !_isPasswordVisible,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.black.withOpacity(0.2),
-                      prefixIcon: Icon(Icons.lock, color: Colors.white),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _isPasswordVisible ? Icons.visibility : Icons.visibility_off,
-                          color: Colors.white,
-                        ),
-                        onPressed: _togglePasswordVisibility,
-                      ),
-                      hintText: 'Password',
-                      hintStyle: TextStyle(color: Colors.white70),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10.0),
-                        borderSide: BorderSide.none,
-                      ),
-                    ),
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  SizedBox(height: 10),
-                 
-                  SizedBox(height: 20),
-                  Container(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _login,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.purple,
-                        padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                      ),
-                      child: _isLoading
-                          ? CircularProgressIndicator(color: Colors.white)
-                          : Text(
-                              'Sign in',
+            child: Container(
+              height: MediaQuery.of(context).size.height,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 50.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 50), // Adjust for spacing at the top
+                      Center(
+                        child: Column(
+                          children: [
+                            Text(
+                              'Care Giver',
                               style: TextStyle(
                                 color: Colors.white,
-                                fontSize: 18,
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
                               ),
                             ),
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  Center(
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => SignupPage()),
-                        );
-                      },
-                      child: Text(
-                        'Don\'t have an account? Sign up',
-                        style: TextStyle(color: Colors.white70, fontSize: 16),
+                            SizedBox(height: 10),
+                            Text(
+                              'Welcome back, we missed you!',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                      SizedBox(height: 30),
+                      if (_errorMessage != null) ...[
+                        Text(
+                          _errorMessage!,
+                          style: TextStyle(color: Colors.red, fontSize: 14),
+                        ),
+                        SizedBox(height: 10),
+                      ],
+                      TextField(
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.black.withOpacity(0.2),
+                          prefixIcon: Icon(Icons.person, color: Colors.white),
+                          hintText: 'Email',
+                          hintStyle: TextStyle(color: Colors.white70),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      SizedBox(height: 20),
+                      TextField(
+                        controller: _passwordController,
+                        obscureText: !_isPasswordVisible,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.black.withOpacity(0.2),
+                          prefixIcon: Icon(Icons.lock, color: Colors.white),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isPasswordVisible
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                              color: Colors.white,
+                            ),
+                            onPressed: _togglePasswordVisibility,
+                          ),
+                          hintText: 'Password',
+                          hintStyle: TextStyle(color: Colors.white70),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      SizedBox(height: 20),
+                      Container(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _isLoading ? null : () => _login(context),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFF11B3C6),
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 50, vertical: 15),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                          child: _isLoading
+                              ? CircularProgressIndicator(color: Colors.white)
+                              : Text(
+                                  'Sign In',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      Center(
+                        child: GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => SignupPage()),
+                            );
+                          },
+                          child: Text(
+                            'Don\'t have an account? Sign up',
+                            style:
+                                TextStyle(color: Colors.white70, fontSize: 16),
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                    ],
                   ),
-                  SizedBox(height: 20),
-                  Spacer(),
-                ],
+                ),
               ),
             ),
           ),
@@ -156,16 +167,13 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-
-
-
   void _togglePasswordVisibility() {
     setState(() {
       _isPasswordVisible = !_isPasswordVisible;
     });
   }
 
-  Future<void> _login() async {
+  Future<void> _login(BuildContext context) async {
     setState(() {
       _isLoading = true;
       _errorMessage = null;
@@ -177,12 +185,11 @@ class _LoginPageState extends State<LoginPage> {
     User? user = await _authService.signInWithEmailPassword(email, password);
 
     if (user != null) {
-      // Fetch the user's role from Firestore or other sources
       String role = await _getUserRole(user.uid);
-      _navigateToDashboard(role);
+      _navigateToDashboard(context, role);
     } else {
       setState(() {
-        _errorMessage = "Invalid username or password.";
+        _errorMessage = "Invalid email or password.";
       });
     }
 
@@ -202,7 +209,7 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  void _navigateToDashboard(String role) {
+  void _navigateToDashboard(BuildContext context, String role) {
     if (role == 'admin') {
       Navigator.pushReplacementNamed(context, '/admin_dashboard');
     } else if (role == 'caregiver') {

@@ -30,7 +30,10 @@ class _SignupPageState extends State<SignupPage> {
         height: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Color(0xFF1E1E2E), Color(0xFF8E44AD)],
+            colors: [
+              Color(0xFF626A74),
+              Color(0xFF1E1E2E)
+            ], // Grayscale gradient
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
@@ -104,7 +107,8 @@ class _SignupPageState extends State<SignupPage> {
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: Colors.black.withOpacity(0.2),
-                      prefixIcon: Icon(Icons.person_outline, color: Colors.white),
+                      prefixIcon:
+                          Icon(Icons.person_outline, color: Colors.white),
                       hintText: 'Select Role',
                       hintStyle: TextStyle(color: Colors.white70),
                       border: OutlineInputBorder(
@@ -187,8 +191,9 @@ class _SignupPageState extends State<SignupPage> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _signup,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.purple,
-                        padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                        backgroundColor: Color(0xFF11B3C6), // Updated to Blue
+                        padding:
+                            EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
@@ -259,7 +264,7 @@ class _SignupPageState extends State<SignupPage> {
         DocumentReference docRef = _firestore.collection('users').doc(user.uid);
 
         await docRef.set({
-          'id': docRef.id, // Firestore-generated unique ID
+          'id': docRef.id,
           'name': _nameController.text.trim(),
           'email': _emailController.text.trim(),
           'role': _selectedRole,
