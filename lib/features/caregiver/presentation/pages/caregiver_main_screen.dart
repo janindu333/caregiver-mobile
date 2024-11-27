@@ -26,7 +26,7 @@ class CaregiverMainScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF1E1E2E), // Dark Gray Background
+        backgroundColor: Color.fromRGBO(98, 106, 116, 1), // Grey Background
         elevation: 0,
         title: const Text(
           'Dashboard',
@@ -52,7 +52,7 @@ class CaregiverMainScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF8E44AD), // Purple Accent
+                  color: Color.fromRGBO(17, 179, 198, 1), // Blue Accent
                 ),
               ),
               SizedBox(height: 10),
@@ -66,14 +66,15 @@ class CaregiverMainScreen extends StatelessWidget {
                   }
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                     return Card(
-                      color: Color(0xFF1E1E2E), // Dark Gray Background
+                      color: Color.fromRGBO(98, 106, 116, 1), // Grey Background
                       child: ListTile(
                         title: Text(
                           'No assigned patients found.',
                           style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
                         leading: Icon(Icons.person_off,
-                            color: Color(0xFF8E44AD)), // Purple Accent Icon
+                            color: Color.fromRGBO(
+                                17, 179, 198, 1)), // Blue Accent Icon
                       ),
                     );
                   }
@@ -82,7 +83,8 @@ class CaregiverMainScreen extends StatelessWidget {
                     children: patientsList.map((patient) {
                       var patientData = patient.data() as Map<String, dynamic>;
                       return Card(
-                        color: Color(0xFF1E1E2E), // Dark Gray Background
+                        color:
+                            Color.fromRGBO(98, 106, 116, 1), // Grey Background
                         child: ListTile(
                           title: Text(
                             '${patientData['name']}',
@@ -94,7 +96,8 @@ class CaregiverMainScreen extends StatelessWidget {
                                 TextStyle(fontSize: 14, color: Colors.white70),
                           ),
                           leading: Icon(Icons.person,
-                              color: Color(0xFF8E44AD)), // Purple Accent Icon
+                              color: Color.fromRGBO(
+                                  17, 179, 198, 1)), // Blue Accent Icon
                         ),
                       );
                     }).toList(),
@@ -109,30 +112,35 @@ class CaregiverMainScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF8E44AD), // Purple Accent
+                  color: Color.fromRGBO(17, 179, 198, 1), // Blue Accent
                 ),
               ),
               SizedBox(height: 10),
               StreamBuilder<QuerySnapshot>(
-                stream: FirebaseFirestore.instance
-                    .collection('notifications')
-                    .where('caregiverId', isEqualTo: currentUser?.uid)
-                    .limit(5)
-                    .snapshots(),
+                stream: () {
+                  // Debug: Print the current user's UID
+                  print('Current user UID: ${currentUser?.uid}');
+                  return FirebaseFirestore.instance
+                      .collection('notifications')
+                      .where('caregiverId', isEqualTo: currentUser?.uid)
+                      .limit(5)
+                      .snapshots();
+                }(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(child: CircularProgressIndicator());
                   }
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                     return Card(
-                      color: Color(0xFF1E1E2E), // Dark Gray Background
+                      color: Color.fromRGBO(98, 106, 116, 1), // Grey Background
                       child: ListTile(
                         title: Text(
                           'No recent notifications found.',
                           style: TextStyle(fontSize: 16, color: Colors.white),
                         ),
                         leading: Icon(Icons.notifications_off,
-                            color: Color(0xFF8E44AD)), // Purple Accent Icon
+                            color: Color.fromRGBO(
+                                17, 179, 198, 1)), // Blue Accent Icon
                       ),
                     );
                   }
@@ -142,7 +150,8 @@ class CaregiverMainScreen extends StatelessWidget {
                       var notificationData =
                           notification.data() as Map<String, dynamic>;
                       return Card(
-                        color: Color(0xFF1E1E2E), // Dark Gray Background
+                        color:
+                            Color.fromRGBO(98, 106, 116, 1), // Grey Background
                         child: ListTile(
                           title: Text(
                             '${notificationData['title']}',
@@ -154,7 +163,8 @@ class CaregiverMainScreen extends StatelessWidget {
                                 TextStyle(fontSize: 14, color: Colors.white70),
                           ),
                           leading: Icon(Icons.notifications,
-                              color: Color(0xFF8E44AD)), // Purple Accent Icon
+                              color: Color.fromRGBO(
+                                  17, 179, 198, 1)), // Blue Accent Icon
                         ),
                       );
                     }).toList(),

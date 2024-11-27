@@ -13,12 +13,8 @@ class UserManagementPage extends StatefulWidget {
 
 class _UserManagementPageState extends State<UserManagementPage> {
   TextEditingController _searchController = TextEditingController();
-  TextEditingController _conditionController = TextEditingController();
   List<DocumentSnapshot> _allPatientsByCareGiverId = [];
   List<DocumentSnapshot> _filteredPatientsByCareGiverId = [];
-  List<DocumentSnapshot> _allPatients = [];
-  List<DocumentSnapshot> _filteredPatients = [];
-  String? _selectedPatientId;
 
   @override
   void initState() {
@@ -40,40 +36,132 @@ class _UserManagementPageState extends State<UserManagementPage> {
     });
   }
 
-  void _filterPatients(String query) {
-    if (query.isEmpty) {
-      setState(() {
-        _filteredPatients = _allPatients;
-      });
-    } else {
-      setState(() {
-        _filteredPatients = _allPatients.where((patient) {
-          String name = (patient.data() as Map<String, dynamic>)['name'];
-          return name.toLowerCase().contains(query.toLowerCase());
-        }).toList();
-      });
-    }
+  void _showAssignPatientDialog() {
+    TextEditingController patientIdController = TextEditingController();
+    TextEditingController conditionController = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text('Assign Patient'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: patientIdController,
+                decoration: InputDecoration(
+                  labelText: 'Enter Patient Unique ID',
+                  filled: true,
+                  fillColor: Color.fromRGBO(98, 106, 116, 0.2), // Grey
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10),
+              TextField(
+                controller: conditionController,
+                decoration: InputDecoration(
+                  labelText: 'Condition',
+                  filled: true,
+                  fillColor: Color.fromRGBO(98, 106, 116, 0.2), // Grey
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                String patientUniqueId = patientIdController.text.trim();
+                String condition = conditionController.text.trim();
+
+                if (patientUniqueId.isNotEmpty && condition.isNotEmpty) {
+                  await _addPatientByUniqueId(patientUniqueId, condition);
+                  Navigator.of(context).pop();
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Please enter a valid ID and condition.'),
+                    ),
+                  );
+                }
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromRGBO(17, 179, 198, 1), // Blue
+              ),
+              child: Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
-  void _addNewPatient(String patientId, String patientName, String condition,
-      VoidCallback onSuccess) async {
+  Future<void> _addPatientByUniqueId(
+      String patientUniqueId, String condition) async {
     User? currentUser = FirebaseAuth.instance.currentUser;
-    CollectionReference patients =
-        FirebaseFirestore.instance.collection('patients');
 
-    await patients.add({
-      'name': patientName,
-      'caregiverId': currentUser?.uid,
-      'lastActivity': DateTime.now().toString(),
-      'id': patientId,
-      'condition': condition,
-    }).then((value) {
-      onSuccess();
-    }).catchError((error) {
-      print("Failed to add patient: $error");
-    });
+    try {
+      // Check if the unique ID exists in the users collection
+      QuerySnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .where('patientUniqueId', isEqualTo: patientUniqueId)
+          .get();
 
-    _fetchPatientsByCareGiverId();
+      if (userSnapshot.docs.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Invalid Patient ID.')),
+        );
+        return;
+      }
+
+      DocumentSnapshot patientDoc = userSnapshot.docs.first;
+      Map<String, dynamic> patientData =
+          patientDoc.data() as Map<String, dynamic>;
+
+      // Check if the patient already has a caregiver assigned
+      QuerySnapshot assignedSnapshot = await FirebaseFirestore.instance
+          .collection('patients')
+          .where('id', isEqualTo: patientDoc.id)
+          .get();
+
+      if (assignedSnapshot.docs.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('This patient is already assigned.')),
+        );
+        return;
+      }
+
+      // Add the patient to the caregiver
+      await FirebaseFirestore.instance.collection('patients').add({
+        'id': patientDoc.id,
+        'name': patientData['name'],
+        'caregiverId': currentUser?.uid,
+        'condition': condition,
+        'lastActivity': DateTime.now().toString(),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Patient assigned successfully.')),
+      );
+
+      _fetchPatientsByCareGiverId();
+    } catch (e) {
+      print('Error assigning patient: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to assign patient. Please try again.')),
+      );
+    }
   }
 
   void _deletePatient(String patientId) async {
@@ -97,12 +185,12 @@ class _UserManagementPageState extends State<UserManagementPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF1E1E2E), // Dark Gray Background
+        backgroundColor: Color.fromRGBO(98, 106, 116, 1), // Grey
         elevation: 0,
         title: const Text(
           'Patient List',
           style: TextStyle(
-            color: Colors.white, // White Text
+            color: Colors.white,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -123,25 +211,21 @@ class _UserManagementPageState extends State<UserManagementPage> {
                 hintStyle: TextStyle(color: Colors.white70),
                 prefixIcon: Icon(Icons.search, color: Colors.white70),
                 filled: true,
-                fillColor:
-                    Colors.black.withOpacity(0.2), // Match Login Page Style
+                fillColor: Color.fromRGBO(98, 106, 116, 0.2), // Grey
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
                 ),
               ),
-              onChanged: (value) {
-                _filterPatients(value);
-              },
               style: TextStyle(color: Colors.white),
             ),
             SizedBox(height: 20),
             Center(
               child: ElevatedButton(
-                onPressed: _fetchPatientsByCareGiverId,
+                onPressed: _showAssignPatientDialog,
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                  backgroundColor: Color(0xFF11B3C6), // Blue Button Color
+                  backgroundColor: Color.fromRGBO(17, 179, 198, 1), // Blue
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -181,7 +265,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                             borderRadius: BorderRadius.circular(10),
                           ),
                           margin: EdgeInsets.symmetric(vertical: 10),
-                          color: Color(0xFF1E1E2E), // Dark Gray Card Background
+                          color: Color.fromRGBO(98, 106, 116, 1), // Grey
                           child: ListTile(
                             contentPadding: EdgeInsets.all(10),
                             title: Text(

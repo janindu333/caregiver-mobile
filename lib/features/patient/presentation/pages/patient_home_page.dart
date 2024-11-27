@@ -1,4 +1,3 @@
-// PatientHomePage.dart
 import 'package:caregiver/features/auth/data/data_sources/auth_service.dart';
 import 'package:caregiver/features/auth/presentation/pages/login_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -12,7 +11,7 @@ class PatientHomePage extends StatelessWidget {
 
   PatientHomePage({Key? key}) : super(key: key);
 
-  Future<String?> _getUsername() async {
+  Future<Map<String, dynamic>?> _getPatientInfo() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user != null) {
       final docSnapshot = await FirebaseFirestore.instance
@@ -21,7 +20,7 @@ class PatientHomePage extends StatelessWidget {
           .get();
 
       if (docSnapshot.exists) {
-        return docSnapshot.data()?['email']; // Replace with actual field name
+        return docSnapshot.data();
       }
     }
     return null;
@@ -33,8 +32,8 @@ class PatientHomePage extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: Color(0xFF626A74), // Updated to Gray
         leading: null,
-        title: FutureBuilder<String?>(
-          future: _getUsername(),
+        title: FutureBuilder<Map<String, dynamic>?>(
+          future: _getPatientInfo(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return CircularProgressIndicator();
@@ -44,8 +43,20 @@ class PatientHomePage extends StatelessWidget {
               return Text('Patient Needs',
                   style: TextStyle(color: Colors.white));
             } else {
-              return Text('Welcome, ${snapshot.data}',
-                  style: TextStyle(color: Colors.white));
+              final patientData = snapshot.data!;
+              final patientUniqueId = patientData['patientUniqueId'] ?? 'N/A';
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Welcome, ${patientData['name'] ?? 'Patient'}',
+                      style: TextStyle(color: Colors.white)),
+                  Text('Unique ID: $patientUniqueId',
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      )),
+                ],
+              );
             }
           },
         ),
@@ -80,9 +91,9 @@ class PatientHomePage extends StatelessWidget {
             Expanded(
               child: GridView.count(
                 crossAxisCount: 2,
-                crossAxisSpacing: 15, // Space between columns
-                mainAxisSpacing: 15, // Space between rows
-                childAspectRatio: 0.7, // Reduced value for taller cards
+                crossAxisSpacing: 15,
+                mainAxisSpacing: 15,
+                childAspectRatio: 0.7,
                 children: [
                   _buildOptionCard(
                     context,
@@ -142,12 +153,12 @@ class PatientHomePage extends StatelessWidget {
       required String subtitle,
       required String needType}) {
     return SizedBox(
-      height: 250, // Increased height
+      height: 250,
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        color: Color(0xFF1E1E2E), // Keep card background subtle
+        color: Color(0xFF1E1E2E),
         child: InkWell(
           onTap: () async {
             await _handleNeedSelection(context, needType);
@@ -160,10 +171,10 @@ class PatientHomePage extends StatelessWidget {
               children: [
                 Icon(
                   icon,
-                  size: 100, // Large icon
-                  color: Color(0xFF11B3C6), // Updated to Blue
+                  size: 100,
+                  color: Color(0xFF11B3C6),
                 ),
-                SizedBox(height: 8), // Space between icon and title
+                SizedBox(height: 8),
                 Text(
                   title,
                   textAlign: TextAlign.center,

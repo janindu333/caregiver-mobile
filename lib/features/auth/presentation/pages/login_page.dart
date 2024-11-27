@@ -38,7 +38,8 @@ class _LoginPageState extends State<LoginPage> {
               height: MediaQuery.of(context).size.height,
               child: SingleChildScrollView(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 50.0),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 30.0, vertical: 50.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -182,15 +183,22 @@ class _LoginPageState extends State<LoginPage> {
     String email = _emailController.text.trim();
     String password = _passwordController.text.trim();
 
-    User? user = await _authService.signInWithEmailPassword(email, password);
+    try {
+      User? user = await _authService.signInWithEmailPassword(email, password);
 
-    if (user != null) {
-      String role = await _getUserRole(user.uid);
-      _navigateToDashboard(context, role);
-    } else {
+      if (user != null) {
+        String role = await _getUserRole(user.uid);
+        _navigateToDashboard(context, role);
+      } else {
+        setState(() {
+          _errorMessage = "Invalid email or password.";
+        });
+      }
+    } catch (e) {
       setState(() {
-        _errorMessage = "Invalid email or password.";
+        _errorMessage = "An error occurred. Please try again.";
       });
+      print("Error during login: $e");
     }
 
     setState(() {
@@ -199,25 +207,36 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<String> _getUserRole(String uid) async {
-    DocumentSnapshot snapshot =
-        await FirebaseFirestore.instance.collection('users').doc(uid).get();
+    try {
+      DocumentSnapshot snapshot =
+          await FirebaseFirestore.instance.collection('users').doc(uid).get();
 
-    if (snapshot.exists) {
-      return snapshot['role'] ?? 'user';
-    } else {
-      return 'user';
+      if (snapshot.exists) {
+        return snapshot['role'] ?? 'user'; // Default to 'user' if role is null
+      }
+      return 'user'; // Default to 'user' if no document exists
+    } catch (e) {
+      print("Error fetching user role: $e");
+      return 'user'; // Fallback role
     }
   }
 
   void _navigateToDashboard(BuildContext context, String role) {
-    if (role == 'admin') {
-      Navigator.pushReplacementNamed(context, '/admin_dashboard');
-    } else if (role == 'caregiver') {
-      Navigator.pushReplacementNamed(context, '/caregiver_dashboard');
-    } else if (role == 'patient') {
-      Navigator.pushReplacementNamed(context, '/patient_dashboard');
-    } else {
-      Navigator.pushReplacementNamed(context, '/default_dashboard');
+    switch (role) {
+      case 'admin':
+        Navigator.pushReplacementNamed(context, '/admin_dashboard');
+        break;
+      case 'caregiver':
+        Navigator.pushReplacementNamed(context, '/caregiver_dashboard');
+        break;
+      case 'patient':
+        Navigator.pushReplacementNamed(context, '/patient_dashboard');
+        break;
+      default:
+        print(
+            "Unrecognized role: $role for user: ${FirebaseAuth.instance.currentUser?.uid}");
+        Navigator.pushReplacementNamed(context, '/default_dashboard');
+        break;
     }
   }
 }

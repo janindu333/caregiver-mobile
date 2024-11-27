@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:math';
 
 class SignupPage extends StatefulWidget {
   @override
@@ -191,7 +192,7 @@ class _SignupPageState extends State<SignupPage> {
                     child: ElevatedButton(
                       onPressed: _isLoading ? null : _signup,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF11B3C6), // Updated to Blue
+                        backgroundColor: Color(0xFF11B3C6),
                         padding:
                             EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                         shape: RoundedRectangleBorder(
@@ -263,11 +264,18 @@ class _SignupPageState extends State<SignupPage> {
       if (user != null) {
         DocumentReference docRef = _firestore.collection('users').doc(user.uid);
 
+        // Generate a unique ID for patients
+        String? patientUniqueId;
+        if (_selectedRole == 'patient') {
+          patientUniqueId = _generateUniqueId();
+        }
+
         await docRef.set({
           'id': docRef.id,
           'name': _nameController.text.trim(),
           'email': _emailController.text.trim(),
           'role': _selectedRole,
+          if (patientUniqueId != null) 'patientUniqueId': patientUniqueId,
         });
 
         _navigateToDashboard(_selectedRole!);
@@ -287,15 +295,20 @@ class _SignupPageState extends State<SignupPage> {
     });
   }
 
+  String _generateUniqueId() {
+    const String chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    Random random = Random();
+    return String.fromCharCodes(Iterable.generate(
+      8,
+      (_) => chars.codeUnitAt(random.nextInt(chars.length)),
+    ));
+  }
+
   void _navigateToDashboard(String role) {
-    if (role == 'admin') {
-      Navigator.pushReplacementNamed(context, '/admin_dashboard');
-    } else if (role == 'caregiver') {
+    if (role == 'caregiver') {
       Navigator.pushReplacementNamed(context, '/caregiver_dashboard');
     } else if (role == 'patient') {
       Navigator.pushReplacementNamed(context, '/patient_dashboard');
-    } else {
-      Navigator.pushReplacementNamed(context, '/default_dashboard');
     }
   }
 }
