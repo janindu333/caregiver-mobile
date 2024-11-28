@@ -39,7 +39,7 @@ class _LoginPageState extends State<LoginPage> {
               child: SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 30.0, vertical: 50.0),
+                      horizontal: 30.0, vertical: 100.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -60,7 +60,8 @@ class _LoginPageState extends State<LoginPage> {
                               'Welcome back, we missed you!',
                               style: TextStyle(
                                 color: Colors.white70,
-                                fontSize: 16,
+                                fontSize: 18, // Slightly larger
+                                height: 1.5, // Increase line height
                               ),
                             ),
                           ],
@@ -90,6 +91,7 @@ class _LoginPageState extends State<LoginPage> {
                         style: TextStyle(color: Colors.white),
                       ),
                       SizedBox(height: 20),
+
                       TextField(
                         controller: _passwordController,
                         obscureText: !_isPasswordVisible,
@@ -97,14 +99,19 @@ class _LoginPageState extends State<LoginPage> {
                           filled: true,
                           fillColor: Colors.black.withOpacity(0.2),
                           prefixIcon: Icon(Icons.lock, color: Colors.white),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _isPasswordVisible
-                                  ? Icons.visibility
-                                  : Icons.visibility_off,
-                              color: Colors.white,
+                          suffixIcon: Tooltip(
+                            message: _isPasswordVisible
+                                ? "Hide Password"
+                                : "Show Password",
+                            child: IconButton(
+                              icon: Icon(
+                                _isPasswordVisible
+                                    ? Icons.visibility
+                                    : Icons.visibility_off,
+                                color: Colors.white,
+                              ),
+                              onPressed: _togglePasswordVisibility,
                             ),
-                            onPressed: _togglePasswordVisibility,
                           ),
                           hintText: 'Password',
                           hintStyle: TextStyle(color: Colors.white70),
@@ -115,6 +122,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         style: TextStyle(color: Colors.white),
                       ),
+
                       SizedBox(height: 20),
                       Container(
                         width: double.infinity,
@@ -122,6 +130,7 @@ class _LoginPageState extends State<LoginPage> {
                           onPressed: _isLoading ? null : () => _login(context),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(0xFF11B3C6),
+                            elevation: 3, // Add shadow
                             padding: EdgeInsets.symmetric(
                                 horizontal: 50, vertical: 15),
                             shape: RoundedRectangleBorder(
@@ -145,14 +154,33 @@ class _LoginPageState extends State<LoginPage> {
                           onTap: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                  builder: (context) => SignupPage()),
+                              PageRouteBuilder(
+                                pageBuilder: (_, __, ___) => SignupPage(),
+                                transitionsBuilder: (_, animation, __, child) {
+                                  return FadeTransition(
+                                      opacity: animation, child: child);
+                                },
+                              ),
                             );
                           },
-                          child: Text(
-                            'Don\'t have an account? Sign up',
-                            style:
-                                TextStyle(color: Colors.white70, fontSize: 16),
+                          child: Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Don\'t have an account? ',
+                                  style: TextStyle(
+                                      color: Colors.white70, fontSize: 16),
+                                ),
+                                TextSpan(
+                                  text: 'Sign up',
+                                  style: TextStyle(
+                                    color: Color(0xFF11B3C6),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),

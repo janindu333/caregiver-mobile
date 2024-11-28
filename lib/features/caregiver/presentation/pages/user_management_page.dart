@@ -204,21 +204,21 @@ class _UserManagementPageState extends State<UserManagementPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search for a patient',
-                hintStyle: TextStyle(color: Colors.white70),
-                prefixIcon: Icon(Icons.search, color: Colors.white70),
-                filled: true,
-                fillColor: Color.fromRGBO(98, 106, 116, 0.2), // Grey
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              style: TextStyle(color: Colors.white),
-            ),
+            // TextField(
+            //   controller: _searchController,
+            //   decoration: InputDecoration(
+            //     hintText: 'Search for a patient',
+            //     hintStyle: TextStyle(color: Colors.white70),
+            //     prefixIcon: Icon(Icons.search, color: Colors.white70),
+            //     filled: true,
+            //     fillColor: Color.fromRGBO(98, 106, 116, 0.2), // Grey
+            //     border: OutlineInputBorder(
+            //       borderRadius: BorderRadius.circular(12),
+            //       borderSide: BorderSide.none,
+            //     ),
+            //   ),
+            //   style: TextStyle(color: Colors.white),
+            // ),
             SizedBox(height: 20),
             Center(
               child: ElevatedButton(
@@ -241,12 +241,36 @@ class _UserManagementPageState extends State<UserManagementPage> {
               ),
             ),
             SizedBox(height: 20),
+
             Expanded(
               child: _filteredPatientsByCareGiverId.isEmpty
                   ? Center(
-                      child: Text(
-                        'No patients found',
-                        style: TextStyle(color: Colors.white70),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.group_off, // Example icon
+                            size: 100,
+                            color: Colors.grey,
+                          ),
+                          SizedBox(height: 20),
+                          Text(
+                            'No patients assigned yet.',
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Text(
+                            'Tap the button above to assign a patient.',
+                            style: TextStyle(
+                              color: Colors.white60,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
                       ),
                     )
                   : ListView.builder(

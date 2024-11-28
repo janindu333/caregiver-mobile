@@ -6,10 +6,16 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
-class PatientHomePage extends StatelessWidget {
-  final AuthService _authService = AuthService();
+class PatientHomePage extends StatefulWidget {
+  const PatientHomePage({Key? key}) : super(key: key);
 
-  PatientHomePage({Key? key}) : super(key: key);
+  @override
+  _PatientHomePageState createState() => _PatientHomePageState();
+}
+
+class _PatientHomePageState extends State<PatientHomePage> {
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
 
   Future<Map<String, dynamic>?> _getPatientInfo() async {
     final user = FirebaseAuth.instance.currentUser;
@@ -30,17 +36,17 @@ class PatientHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF626A74), // Updated to Gray
+        backgroundColor: const Color(0xFF626A74),
         leading: null,
         title: FutureBuilder<Map<String, dynamic>?>(
           future: _getPatientInfo(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return CircularProgressIndicator();
+              return const CircularProgressIndicator();
             } else if (snapshot.hasError) {
-              return Text('Error', style: TextStyle(color: Colors.white));
+              return const Text('Error', style: TextStyle(color: Colors.white));
             } else if (!snapshot.hasData || snapshot.data == null) {
-              return Text('Patient Needs',
+              return const Text('Patient Needs',
                   style: TextStyle(color: Colors.white));
             } else {
               final patientData = snapshot.data!;
@@ -48,13 +54,33 @@ class PatientHomePage extends StatelessWidget {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Welcome, ${patientData['name'] ?? 'Patient'}',
-                      style: TextStyle(color: Colors.white)),
-                  Text('Unique ID: $patientUniqueId',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      )),
+                  Text(
+                    'Welcome, ${patientData['name'] ?? 'Patient'}',
+                    style: const TextStyle(color: Colors.white),
+                  ),
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Unique ID: ',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 17,
+                          ),
+                        ),
+                        TextSpan(
+                          text: patientUniqueId,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold, // Bold for value
+                            color: Color.fromARGB(
+                                240, 5, 240, 5), // Highlight color
+                            fontSize: 20, // Larger font size
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               );
             }
@@ -63,7 +89,7 @@ class PatientHomePage extends StatelessWidget {
         centerTitle: true,
         actions: [
           IconButton(
-            icon: Icon(Icons.logout, color: Colors.white),
+            icon: const Icon(Icons.logout, color: Colors.white),
             onPressed: () async {
               await _authService.signOut();
               Navigator.pushReplacement(
@@ -74,76 +100,89 @@ class PatientHomePage extends StatelessWidget {
           ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'What do you need?',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
+      body: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'What do you need?',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Expanded(
+                  child: GridView.count(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 15,
+                    mainAxisSpacing: 15,
+                    childAspectRatio: 0.7,
+                    children: [
+                      _buildOptionCard(
+                        context,
+                        icon: Icons.restaurant,
+                        title: 'Food',
+                        subtitle: 'Have a meal',
+                        needType: 'food',
+                      ),
+                      _buildOptionCard(
+                        context,
+                        icon: Icons.local_drink,
+                        title: 'Drink',
+                        subtitle: 'Stay hydrated',
+                        needType: 'drink',
+                      ),
+                      _buildOptionCard(
+                        context,
+                        icon: Icons.wc,
+                        title: 'Bathroom',
+                        subtitle: 'Use the bathroom',
+                        needType: 'bathroom',
+                      ),
+                      _buildOptionCard(
+                        context,
+                        icon: Icons.chat_bubble_outline,
+                        title: 'Feelings',
+                        subtitle: 'Need to talk',
+                        needType: 'feelings',
+                      ),
+                      _buildOptionCard(
+                        context,
+                        icon: Icons.healing,
+                        title: 'Pain',
+                        subtitle: 'I\'m in pain',
+                        needType: 'pain',
+                      ),
+                      _buildOptionCard(
+                        context,
+                        icon: Icons.medication,
+                        title: 'Medicine',
+                        subtitle: 'Need medicine',
+                        needType: 'medicine',
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (_isLoading)
+            Container(
+              color: Colors.black54,
+              child: const Center(
+                child: CircularProgressIndicator(
+                  color: Colors.white,
+                ),
               ),
             ),
-            SizedBox(height: 20),
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 2,
-                crossAxisSpacing: 15,
-                mainAxisSpacing: 15,
-                childAspectRatio: 0.7,
-                children: [
-                  _buildOptionCard(
-                    context,
-                    icon: Icons.restaurant,
-                    title: 'Food',
-                    subtitle: 'Have a meal',
-                    needType: 'food',
-                  ),
-                  _buildOptionCard(
-                    context,
-                    icon: Icons.local_drink,
-                    title: 'Drink',
-                    subtitle: 'Stay hydrated',
-                    needType: 'drink',
-                  ),
-                  _buildOptionCard(
-                    context,
-                    icon: Icons.wc,
-                    title: 'Bathroom',
-                    subtitle: 'Use the bathroom',
-                    needType: 'bathroom',
-                  ),
-                  _buildOptionCard(
-                    context,
-                    icon: Icons.chat_bubble_outline,
-                    title: 'Feelings',
-                    subtitle: 'Need to talk',
-                    needType: 'feelings',
-                  ),
-                  _buildOptionCard(
-                    context,
-                    icon: Icons.healing,
-                    title: 'Pain',
-                    subtitle: 'I\'m in pain',
-                    needType: 'pain',
-                  ),
-                  _buildOptionCard(
-                    context,
-                    icon: Icons.medication,
-                    title: 'Medicine',
-                    subtitle: 'Need medicine',
-                    needType: 'medicine',
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
+        ],
       ),
-      backgroundColor: Color(0xFF626A74), // Updated to Gray
+      backgroundColor: const Color(0xFF626A74),
     );
   }
 
@@ -158,10 +197,12 @@ class PatientHomePage extends StatelessWidget {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(10),
         ),
-        color: Color(0xFF1E1E2E),
+        color: const Color(0xFF1E1E2E),
         child: InkWell(
           onTap: () async {
+            setState(() => _isLoading = true);
             await _handleNeedSelection(context, needType);
+            setState(() => _isLoading = false);
           },
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -172,23 +213,23 @@ class PatientHomePage extends StatelessWidget {
                 Icon(
                   icon,
                   size: 100,
-                  color: Color(0xFF11B3C6),
+                  color: const Color(0xFF11B3C6),
                 ),
-                SizedBox(height: 8),
+                const SizedBox(height: 8),
                 Text(
                   title,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
                 ),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text(
                   subtitle,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 14,
                     color: Colors.white70,
                   ),
@@ -233,12 +274,13 @@ class PatientHomePage extends StatelessWidget {
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to find caregiver information.')),
+            const SnackBar(
+                content: Text('Failed to find caregiver information.')),
           );
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('User is not logged in.')),
+          const SnackBar(content: Text('User is not logged in.')),
         );
       }
     } catch (e) {
